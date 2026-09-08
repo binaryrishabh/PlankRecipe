@@ -1,0 +1,29 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Recipe {
+  id          String    @id         @default(uuid())
+  url         String    @unique
+  title       String
+  imageUrl    String?
+  description String?
+  servings    String?
+  prepTime    String?
+  cookTime    String?
+  ingredients Json
+  steps       Json
+  tweaks      Tweak[]
+  createdAt   DateTime              @default(now())
+}
+
+model Tweak {
+  id        String    @id    @default(uuid())
+  recipeId  String
+  recipe    Recipe    @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+}
