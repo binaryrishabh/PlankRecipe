@@ -18,9 +18,32 @@ router.post("/", async (req, res) => {
     return;
   }
 
-  const { url } = parseResult.data;
+  const { url, refresh } = parseResult.data;
 
   try {
+    // "persist so they can be revisited later" — if we already scraped this url
+    // and got real tweaks, serve the saved bundle instantly instead of burning
+    // time + gemini tokens on a re-scrape
+    if (!refresh) {
+      const existing = await prisma.recipe.findUnique({
+        where: { url },
+        include: { tweaks: { orderBy: { sortOrder: "asc" } } }
+      });
+
+      // only trust the cache when at least one tweak has a real diff. a run
+      // that died halfway can leave behind note-only junk we want to redo
+      const hasRealDiffs = existing?.tweaks.some((t) => {
+        const diffs = Array.isArray(t.diff) ? (t.diff as any[]) : [];
+        return diffs.some((d) => d && d.type !== "note");
+      });
+
+      if (existing && hasRealDiffs) {
+        console.log(`[cache] serving "${existing.title}" straight from the db (${existing.tweaks.length} tweaks)`);
+        res.status(200).json(toRecipeBundle(existing));
+        return;
+      }
+    }
+
     // scrape the page and build the bundle, hopefully it doesnt crash
     const bundle = await scrapeRecipe(url);
 
