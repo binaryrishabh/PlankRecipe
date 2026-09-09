@@ -1,71 +1,95 @@
 import { useRecipeStore } from '@/store/recipeStore';
+import { TweakSwitcher } from '@/components/tweaks/TweakSwitcher';
+import { RecipeView } from '@/components/recipe/RecipeView';
+import { DiffLegend } from '@/components/recipe/DiffLegend';
 
 export function RecipeResults() {
-  const { bundle } = useRecipeStore();
+  const { bundle, selectedTweakId, selectTweak, clearSelection } = useRecipeStore();
 
   if (!bundle) return null;
 
+  const selectedTweak = bundle.tweaks.find((t) => t.id === selectedTweakId) ?? null;
+  const hasTweaks = bundle.tweaks.length > 0;
+
   return (
-    <div className="w-full max-w-5xl mt-6 p-8 bg-white rounded-2xl shadow-xl border border-gray-200 animate-in fade-in zoom-in-95 duration-300">
-      {/* Header Section */}
+    <div className="w-full max-w-5xl mt-6 p-6 md:p-8 bg-white rounded-2xl shadow-xl border border-gray-200">
+      {/* recipe header */}
       <div className="flex flex-col md:flex-row gap-6 mb-8 border-b border-gray-100 pb-8">
         {bundle.recipe.imageUrl && (
-          <img 
-            src={bundle.recipe.imageUrl} 
+          <img
+            src={bundle.recipe.imageUrl}
             alt={bundle.recipe.title}
-            className="w-full md:w-56 h-56 object-cover rounded-xl shadow-lg"
+            className="w-full md:w-48 h-48 object-cover rounded-xl shadow-md"
           />
         )}
         <div className="flex-1">
-          <h2 className="text-3xl font-bold text-gray-900 mb-3 leading-tight">{bundle.recipe.title}</h2>
+          <h2 className="text-3xl font-bold text-gray-900 mb-3 leading-tight">
+            {bundle.recipe.title}
+          </h2>
           <div className="flex flex-wrap gap-4 text-sm text-gray-500 mb-4 font-medium">
-            {bundle.recipe.prepTime && <span className="flex items-center gap-1">⏱️ Prep: {bundle.recipe.prepTime}</span>}
-            {bundle.recipe.cookTime && <span className="flex items-center gap-1">🍳 Cook: {bundle.recipe.cookTime}</span>}
-            {bundle.recipe.servings && <span className="flex items-center gap-1">🍽️ Servings: {bundle.recipe.servings}</span>}
+            {bundle.recipe.prepTime && (
+              <span className="flex items-center gap-1">⏱️ Prep: {bundle.recipe.prepTime}</span>
+            )}
+            {bundle.recipe.cookTime && (
+              <span className="flex items-center gap-1">🍳 Cook: {bundle.recipe.cookTime}</span>
+            )}
+            {bundle.recipe.servings && (
+              <span className="flex items-center gap-1">🍽️ Servings: {bundle.recipe.servings}</span>
+            )}
           </div>
           {bundle.recipe.description && (
-            <p className="text-gray-600 line-clamp-3 leading-relaxed">
-              {bundle.recipe.description}
-            </p>
+            <p className="text-gray-600 line-clamp-3 leading-relaxed">{bundle.recipe.description}</p>
           )}
         </div>
       </div>
 
-      {/* Tweaks Success Banner */}
-      <div className="bg-blue-50 border border-blue-100 p-5 rounded-xl mb-8">
+      {/* tweaks summary */}
+      <div className="bg-blue-50 border border-blue-100 p-5 rounded-xl mb-6">
         <h3 className="font-bold text-blue-900 text-lg mb-1 flex items-center gap-2">
-          <span>🎉</span> Found {bundle.tweaks.length} Featured Tweaks!
+          <span>🎉</span> Found {bundle.tweaks.length} Featured Tweak
+          {bundle.tweaks.length === 1 ? '' : 's'}!
         </h3>
         <p className="text-blue-800 text-sm">
-          Select a community tweak below to see the modified recipe and diff highlights. (Diff UI coming in Phase 3).
+          {hasTweaks
+            ? 'Pick a tweak below to see how that reviewer changed the recipe. The differences light up like a code diff.'
+            : 'No community tweaks were found for this one, so here is the original recipe.'}
         </p>
       </div>
 
-      {/* Tweaks Grid (Placeholder for Phase 3 interaction) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-        {bundle.tweaks.map((tweak, idx) => (
-          <button 
-            key={tweak.id}
-            className="text-left p-5 bg-gray-50 hover:bg-white hover:shadow-md border border-gray-200 hover:border-blue-300 rounded-xl transition-all group"
-          >
-            <div className="flex justify-between items-start mb-3">
-              <span className="font-bold text-gray-900 group-hover:text-blue-600 transition-colors">Tweak #{idx + 1}</span>
-              <span className="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded-full font-medium">
-                {tweak.modified.ingredients.length} items
-              </span>
-            </div>
-            <p className="text-sm text-gray-600 line-clamp-3 leading-relaxed mb-3">
-              "{tweak.text || 'No review text available.'}"
-            </p>
-            {tweak.author && (
-              <p className="text-xs text-gray-400 font-medium mt-auto">— {tweak.author}</p>
-            )}
-          </button>
-        ))}
+      {/* switcher tabs */}
+      <div className="mb-6">
+        <TweakSwitcher
+          tweaks={bundle.tweaks}
+          selectedTweakId={selectedTweakId}
+          onSelect={selectTweak}
+          onViewOriginal={clearSelection}
+        />
       </div>
-      
-      {/* Raw JSON Fallback */}
-      <details className="text-sm border-t border-gray-100 pt-6">
+
+      {/* show the actual review text for context when a tweak is picked */}
+      {selectedTweak && (
+        <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+          <p className="text-sm text-gray-700 leading-relaxed">
+            <span className="font-semibold text-gray-900">
+              {selectedTweak.author ? selectedTweak.author : 'A home cook'} said:
+            </span>{' '}
+            “{selectedTweak.text}”
+          </p>
+        </div>
+      )}
+
+      {/* color legend only matters when were looking at a modified version */}
+      {selectedTweak && (
+        <div className="mb-6">
+          <DiffLegend />
+        </div>
+      )}
+
+      {/* the recipe itself, original or modified */}
+      <RecipeView recipe={bundle.recipe} tweak={selectedTweak} />
+
+      {/* raw json for debugging */}
+      <details className="text-sm border-t border-gray-100 pt-6 mt-8">
         <summary className="cursor-pointer text-gray-500 hover:text-gray-700 font-medium select-none">
           Inspect Raw JSON Bundle (Debug)
         </summary>
