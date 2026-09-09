@@ -1,4 +1,5 @@
 import type { DisplayRow, RowStatus } from '@/lib/diff';
+import { computeWordDiff } from '@/lib/wordDiff';
 
 interface DiffRowProps {
   row: DisplayRow;
@@ -41,13 +42,34 @@ function renderContent(row: DisplayRow) {
       return <span className="text-red-700 line-through decoration-red-400">{row.text}</span>;
 
     case 'changed':
+      if (!row.before) {
+        // fallback just in case before is missing for some wierd reason
+        return <span className="text-green-800 font-medium">{row.text}</span>;
+      }
+      
+      const wordDiff = computeWordDiff(row.before, row.text);
       return (
         <span>
-          <span className="text-red-700 line-through decoration-red-400">{row.before}</span>
-          <span className="mx-2 text-gray-400 select-none" aria-hidden="true">
-            →
-          </span>
-          <span className="text-green-800 font-medium">{row.text}</span>
+          {wordDiff.map((part, idx) => {
+            if (part.type === 'same') {
+              return <span key={idx} className="text-gray-800">{part.text}</span>;
+            }
+            if (part.type === 'removed') {
+              return (
+                <span key={idx} className="text-red-700 line-through decoration-red-400 bg-red-50 rounded-sm px-0.5">
+                  {part.text}
+                </span>
+              );
+            }
+            if (part.type === 'added') {
+              return (
+                <span key={idx} className="text-green-800 bg-green-100 rounded-sm px-0.5 font-medium">
+                  {part.text}
+                </span>
+              );
+            }
+            return null;
+          })}
         </span>
       );
 

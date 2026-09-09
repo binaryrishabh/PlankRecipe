@@ -8,8 +8,10 @@ export function RecipeResults() {
 
   if (!bundle) return null;
 
-  const selectedTweak = bundle.tweaks.find((t) => t.id === selectedTweakId) ?? null;
-  const hasTweaks = bundle.tweaks.length > 0;
+  // fallback to empty array just in case, tho store should have sanatized it already
+  const tweaks = Array.isArray(bundle.tweaks) ? bundle.tweaks : [];
+  const selectedTweak = tweaks.find((t) => t.id === selectedTweakId) ?? null;
+  const hasTweaks = tweaks.length > 0;
 
   return (
     <div className="w-full max-w-5xl mt-6 p-6 md:p-8 bg-white rounded-2xl shadow-xl border border-gray-200">
@@ -46,8 +48,8 @@ export function RecipeResults() {
       {/* tweaks summary */}
       <div className="bg-blue-50 border border-blue-100 p-5 rounded-xl mb-6">
         <h3 className="font-bold text-blue-900 text-lg mb-1 flex items-center gap-2">
-          <span>🎉</span> Found {bundle.tweaks.length} Featured Tweak
-          {bundle.tweaks.length === 1 ? '' : 's'}!
+          <span>🎉</span> Found {tweaks.length} Featured Tweak
+          {tweaks.length === 1 ? '' : 's'}!
         </h3>
         <p className="text-blue-800 text-sm">
           {hasTweaks
@@ -59,7 +61,7 @@ export function RecipeResults() {
       {/* switcher tabs */}
       <div className="mb-6">
         <TweakSwitcher
-          tweaks={bundle.tweaks}
+          tweaks={tweaks}
           selectedTweakId={selectedTweakId}
           onSelect={selectTweak}
           onViewOriginal={clearSelection}

@@ -2,8 +2,10 @@ import { UrlInputForm } from '@/components/UrlInputForm';
 import { ErrorDisplay } from '@/components/ErrorDisplay';
 import { RecipeResults } from '@/components/RecipeResults';
 import { useRecipeStore } from '@/store/recipeStore';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
-function App() {
+// split into AppContent so the error boundary can actually catch hooks crashing
+function AppContent() {
   const { loading } = useRecipeStore();
 
   return (
@@ -36,6 +38,14 @@ function App() {
         Plank Technical Assignment &bull; Frontend Agent
       </footer>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <ErrorBoundary>
+      <AppContent />
+    </ErrorBoundary>
   );
 }
 

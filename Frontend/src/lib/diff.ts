@@ -18,39 +18,34 @@ export interface SectionDiffModel {
   notes: string[];
 }
 
-// Builds the rows we render for one section (ingredients or steps).
-//
-// We walk the ORIGINAL list so that removed items stay in place (like a github
-// diff does), then tack the added items on the end because the scraper always
-// pushes those to the bottom of the list.
-//
-// One note: we match by the before/after text instead of the index field. Removed
-// items get spliced out of the modified array on the backend, so their index points
-// at the original list and would land us in the wrong spot if we trusted it blindly.
 export function buildSectionDiff(
-  original: string[],
-  annotations: DiffAnnotation[]
+  original: string[] | undefined | null,
+  annotations: DiffAnnotation[] | undefined | null
 ): SectionDiffModel {
-  const notes = annotations
+  // defensive checks just in case the store sanitization missed alot of things
+  const safeOriginal = Array.isArray(original) ? original : [];
+  const safeAnnotations = Array.isArray(annotations) ? annotations : [];
+
+  const notes = safeAnnotations
     .filter((a) => a.type === Diff.NOTE && a.after)
     .map((a) => a.after as string);
 
   // kept as a pool so a duplicated ingredient only gets matched one time
-  const removedPool = annotations
+  const removedPool = safeAnnotations
     .filter((a) => a.type === Diff.REMOVED && a.before)
     .map((a) => a.before as string);
 
-  const changedPairs = annotations
+  const changedPairs = safeAnnotations
     .filter((a) => a.type === Diff.CHANGED && a.before && a.after)
     .map((a) => ({ before: a.before as string, after: a.after as string }));
 
-  const addedItems = annotations
+  const addedItems = safeAnnotations
     .filter((a) => a.type === Diff.ADDED && a.after)
     .map((a) => a.after as string);
 
   const rows: DisplayRow[] = [];
 
-  original.forEach((item, index) => {
+  safeOriginal.forEach((item, index) => {
     // was this line removed?
     const removedAt = removedPool.indexOf(item);
     if (removedAt !== -1) {

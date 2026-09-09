@@ -14,6 +14,8 @@ export function TweakSwitcher({
   onSelect,
   onViewOriginal,
 }: TweakSwitcherProps) {
+  const safeTweaks = Array.isArray(tweaks) ? tweaks : [];
+
   return (
     <div className="flex flex-wrap gap-2">
       <button
@@ -24,7 +26,7 @@ export function TweakSwitcher({
         Original recipe
       </button>
 
-      {tweaks.map((tweak, i) => {
+      {safeTweaks.map((tweak, i) => {
         const active = tweak.id === selectedTweakId;
         return (
           <button
