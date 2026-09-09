@@ -28,7 +28,7 @@ jobs:
             cd Backend
             bun install
             bunx prisma generate
-            pm2 restart plank-backend --update-env
+            pm2 restart "bun run dev" --update-env
             sleep 3
             curl -fsS http://localhost:3000/health
             echo "[deploy] backend is healthy and back up"
