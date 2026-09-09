@@ -1,3 +1,9 @@
+// Prisma schema — source of truth for the Neon (PostgreSQL) database.
+// Shapes intentionally mirror the shared contracts:
+//   shared/interface/Recipe.interface.ts
+//   shared/interface/Tweak.interface.ts
+// Json columns store the shared ModifiedRecipe / DiffAnnotation[] payloads.
+
 generator client {
   provider = "prisma-client"
   output   = "../lib/generated/prisma"
@@ -8,22 +14,31 @@ datasource db {
 }
 
 model Recipe {
-  id          String    @id         @default(uuid())
-  url         String    @unique
+  id          String   @id        @default(uuid())
+  url         String   @unique
   title       String
   imageUrl    String?
   description String?
   servings    String?
   prepTime    String?
   cookTime    String?
-  ingredients Json
-  steps       Json
+  ingredients Json // string[] — shared/interface/Recipe.interface.ts
+  steps       Json // string[] — shared/interface/Recipe.interface.ts
   tweaks      Tweak[]
-  createdAt   DateTime              @default(now())
+  createdAt   DateTime            @default(now())
 }
 
 model Tweak {
-  id        String    @id    @default(uuid())
+  id        String   @id          @default(uuid())
   recipeId  String
-  recipe    Recipe    @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  author    String?
+  date      String? // raw string as scraped from AllReviews, not normalized
+  text      String
+  sortOrder Int
+  modified  Json // ModifiedRecipe — shared/interface/ModifiedRecipe.interface.ts
+  diff      Json // DiffAnnotation[] — shared/interface/DiffAnnotation.interface.ts
+  createdAt DateTime              @default(now())
+
+  @@index([recipeId, sortOrder])
 }
