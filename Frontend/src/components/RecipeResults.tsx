@@ -2,6 +2,7 @@ import { useRecipeStore } from '@/store/recipeStore';
 import { TweakSwitcher } from '@/components/tweaks/TweakSwitcher';
 import { RecipeView } from '@/components/recipe/RecipeView';
 import { DiffLegend } from '@/components/recipe/DiffLegend';
+import { SourceLink } from '@/components/recipe/SourceLink';
 
 export function RecipeResults() {
   const { bundle, selectedTweakId, selectTweak, clearSelection } = useRecipeStore();
@@ -42,6 +43,7 @@ export function RecipeResults() {
           {bundle.recipe.description && (
             <p className="text-gray-600 line-clamp-3 leading-relaxed">{bundle.recipe.description}</p>
           )}
+          <SourceLink url={bundle.recipe.url} />
         </div>
       </div>
 
