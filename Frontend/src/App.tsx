@@ -22,7 +22,7 @@ function AppContent() {
       <main className="w-full flex flex-col items-center gap-6">
         <UrlInputForm />
         <ErrorDisplay />
-        
+
         {loading && (
           <div className="mt-12 flex flex-col items-center gap-4 animate-pulse">
             <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
@@ -33,9 +33,9 @@ function AppContent() {
 
         <RecipeResults />
       </main>
-      
+
       <footer className="mt-auto pt-12 text-sm text-gray-400">
-        Plank Technical Assignment &bull; Frontend Agent
+        Plank Recipe Project &bull; Community tweaks, highlighted
       </footer>
     </div>
   );

@@ -1,6 +1,7 @@
 import type { Recipe } from '@shared/interface/Recipe.interface';
 import type { Tweak } from '@shared/interface/Tweak.interface';
 import { buildSectionDiff } from '@/lib/diff';
+import { dedupeNotes } from '@/lib/notes';
 import { DiffList } from './DiffList';
 import { NoteCallout } from './NoteCallout';
 
@@ -25,18 +26,22 @@ export function RecipeView({ recipe, tweak }: RecipeViewProps) {
     annotations.filter((a) => a.section === 'steps')
   );
 
-  // gather the freeform notes (note annotations + the interpretation fallback) in one spot
-  const noteSet = new Set<string>([...ingredientsModel.notes, ...stepsModel.notes]);
-  if (tweak?.modified.interpretationNote) {
-    noteSet.add(tweak.modified.interpretationNote);
-  }
+  // gather the freeform notes (note annotations + the interpretation fallback) in one spot.
+  // dedupeNotes strips the "Community tweak: " prefix first so the same text cant sneak
+  // in twice — this also covers older bundles already sitting in the db, since we
+  // normalize at render time instead of trusting whatever got persisted
+  const notes = dedupeNotes([
+    ...ingredientsModel.notes,
+    ...stepsModel.notes,
+    tweak?.modified.interpretationNote ?? null,
+  ]);
 
   return (
     <div className="space-y-8">
       {/* notes float to the very top so they are hard to miss */}
-      {noteSet.size > 0 && (
+      {notes.length > 0 && (
         <div className="space-y-2">
-          {[...noteSet].map((note, i) => (
+          {notes.map((note, i) => (
             <NoteCallout key={`note-${i}`} text={note} />
           ))}
         </div>
