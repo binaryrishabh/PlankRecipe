@@ -13,7 +13,7 @@ function AppContent() {
     <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 flex flex-col items-center pt-16 px-4 pb-12">
       <header className="text-center mb-10 max-w-2xl">
         <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900 mb-3">
-          allrecipes   <span className="text-red-600">Tweaks</span>
+          allrecipes   <span className="text-blue-600">Tweaks</span>
         </h1>
         <p className="text-lg text-gray-600">
           Paste any AllRecipes link to instantly see community modifications and diff highlights.
