@@ -8,7 +8,16 @@ const app = express();
 
 // locked down cors — only the origin from CORS_ORIGIN gets through,
 // falls back to the local vite dev server when the env var is missing
-app.use(cors({ origin: config.CORS_ORIGIN }));
+const allowedOrigins = config.CORS_ORIGIN.split(",").map((o) => o.trim());
+app.use(cors({
+  origin: (origin, callback) => {
+    // tools like curl send no origin at all, let those through
+    if (!origin) return callback(null, true);
+    const allowed = allowedOrigins.includes(origin) || origin.endsWith(".vercel.app");
+    callback(null, allowed);
+  }
+}));
+
 app.use(express.json()); // needed to parse json bodies
 
 app.get("/health", (req, res) => {
