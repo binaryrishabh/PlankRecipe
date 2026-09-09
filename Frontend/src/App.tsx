@@ -3,6 +3,7 @@ import { ErrorDisplay } from '@/components/ErrorDisplay';
 import { RecipeResults } from '@/components/RecipeResults';
 import { useRecipeStore } from '@/store/recipeStore';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { RecentRecipes } from '@/components/RecentRecipes';
 
 // split into AppContent so the error boundary can actually catch hooks crashing
 function AppContent() {
@@ -21,6 +22,7 @@ function AppContent() {
 
       <main className="w-full flex flex-col items-center gap-6">
         <UrlInputForm />
+        <RecentRecipes />
         <ErrorDisplay />
 
         {loading && (
