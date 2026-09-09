@@ -23,7 +23,8 @@ export async function scrapeRecipe(url: string): Promise<RecipeBundle> {
     reviews = embeddedReviews;
   }
 
-  // 4. run rule engine to turn every review into a tweak (1:1 mapping)
+  // 4. run rule engine — the filter inside drops generic praise reviews
+  // and only turns the actionable ones into tweaks
   const tweaks = generateTweaks(recipe, reviews);
 
   return {

@@ -2,6 +2,7 @@ import crypto from "crypto";
 import type { Recipe } from "@shared/interface/Recipe.interface";
 import type { Tweak } from "@shared/interface/Tweak.interface";
 import type { DiffAnnotation } from "@shared/interface/DiffAnnotation.interface";
+import { isActionableTweak } from "../utils/tweakFilter";
 
 // simple rule engine to parse tweaks from reviews without external services
 // graceful degradation: if we can't parse it perfectly, we just add a note
@@ -10,15 +11,16 @@ export function generateTweaks(recipe: Recipe, rawReviews: any[]): Tweak[] {
 
   let sortOrder = 0;
 
-  // no keyword gating anymore — every review becomes a tweak.
-  // the specific rules below try to build real ingredient diffs, and anything
-  // they can't make sense of just lands in the fallback note diff instead of
-  // being dropped on the floor
   for (const review of rawReviews) {
     const text = review.reviewBody || "";
     const author = review.author?.name || null;
     const date = review.datePublished || null;
     const lowerText = text.toLowerCase();
+
+    // context-aware gate: pure praise like "great twist!" or "easy and tasty!"
+    // gets skipped here so it never ends up saved as a bogus tweak.
+    // anything mentioning ingredients, techniques or modification words passes thru
+    if (!isActionableTweak(text, recipe)) continue;
 
     const modifiedIngredients = [...recipe.ingredients];
     const modifiedSteps = [...recipe.steps];
