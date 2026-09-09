@@ -2,7 +2,7 @@
 
 ## 📸 Screenshot
 
-<img src="screenshots/landing-page.png" alt="Allrecipes Tweaks showing GitHub-style diff highlights on a scraped recipe" width="800" />
+<img src="screenshots/landing.png" alt="Allrecipes Tweaks showing GitHub-style diff highlights on a scraped recipe" width="800" />
 
 Paste any [AllRecipes](https://www.allrecipes.com) link and instantly see how home cooks modified the recipe — with **GitHub-PR-style visual diffs** highlighting every added, removed, and changed ingredient or step.
 
