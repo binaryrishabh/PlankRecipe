@@ -167,7 +167,7 @@ export async function generateTweaks(recipe: Recipe, rawReviews: any[]): Promise
   // keep hiding those (your call from earlier). if you want literally every
   // review shown for strict doc compliance, just return results instead
   const realTweaks = results.filter((t) => t.diff.some((d) => d.type !== "note"));
-  console.log(`[extractor] done — keeping ${realTweaks.length}/${results.length} tweaks with real diffs`);
+  console.log(`[extractor] done — keeping ${realTweaks.length}/${results.length} tweaks with the real diffs`);
 
   return realTweaks;
 }
