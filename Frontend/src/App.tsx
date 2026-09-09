@@ -13,7 +13,7 @@ function AppContent() {
     <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 flex flex-col items-center pt-16 px-4 pb-12">
       <header className="text-center mb-10 max-w-2xl">
         <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900 mb-3">
-          Plank <span className="text-blue-600">Tweaks</span>
+          allrecipes   <span className="text-blue-600">Tweaks</span>
         </h1>
         <p className="text-lg text-gray-600">
           Paste any AllRecipes link to instantly see community modifications and diff highlights.
@@ -37,7 +37,7 @@ function AppContent() {
       </main>
 
       <footer className="mt-auto pt-12 text-sm text-gray-400">
-        Plank Recipe Project &bull; Community tweaks, highlighted
+        allrecipes Tweaks &bull; Community tweaks, highlighted
       </footer>
     </div>
   );
