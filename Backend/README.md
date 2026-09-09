@@ -2,7 +2,7 @@
 
 Bun + Express 5 API that scrapes AllRecipes, extracts community tweaks with Gemini, and persists everything to Neon Postgres.
 
-**Live:** https://allrecipe.backend.lapwork.in
+**Live:** https://allrecipe.backend.lapwork.in/health
 
 ## 📡 Endpoints
 
