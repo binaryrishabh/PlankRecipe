@@ -8,23 +8,17 @@ import type { DiffAnnotation } from "@shared/interface/DiffAnnotation.interface"
 export function generateTweaks(recipe: Recipe, rawReviews: any[]): Tweak[] {
   const tweaks: Tweak[] = [];
 
-  // keywords that usually mean the user modified the recipe
-  const tweakKeywords = [
-    "substitute", "substituted", "instead", "added", "add",
-    "used", "omitted", "skip", "skipped", "replaced", "replace",
-    "bacon", "cheddar", "mozzarella"
-  ];
-
   let sortOrder = 0;
 
+  // no keyword gating anymore — every review becomes a tweak.
+  // the specific rules below try to build real ingredient diffs, and anything
+  // they can't make sense of just lands in the fallback note diff instead of
+  // being dropped on the floor
   for (const review of rawReviews) {
     const text = review.reviewBody || "";
     const author = review.author?.name || null;
     const date = review.datePublished || null;
     const lowerText = text.toLowerCase();
-
-    const isTweak = tweakKeywords.some(kw => lowerText.includes(kw));
-    if (!isTweak) continue;
 
     const modifiedIngredients = [...recipe.ingredients];
     const modifiedSteps = [...recipe.steps];
@@ -46,10 +40,8 @@ export function generateTweaks(recipe: Recipe, rawReviews: any[]): Tweak[] {
     // rule 2: feta -> cheddar/pecorino/mozzarella
     if (lowerText.includes("feta") && (lowerText.includes("cheddar") || lowerText.includes("pecorino") || lowerText.includes("mozzarella"))) {
       const fetaIndex = modifiedIngredients.findIndex(i => i.toLowerCase().includes("feta"));
-
       if (fetaIndex !== -1) {
         const before = modifiedIngredients[fetaIndex];
-
         if (before !== undefined) {
           // figure out what they actually used
           let replacement = "cheddar";
@@ -74,14 +66,11 @@ export function generateTweaks(recipe: Recipe, rawReviews: any[]): Tweak[] {
     const omitMatch = lowerText.match(/(?:omitted|skipped|left out|didn't use|did not use)\s+(?:the\s+)?([a-zA-Z\s]+?)(?:\.|,|and|$)/);
     if (omitMatch) {
       const omittedRaw = omitMatch[1];
-
       if (omittedRaw) {
         const omittedItem = omittedRaw.trim();
         const idx = modifiedIngredients.findIndex(i => i.toLowerCase().includes(omittedItem));
-
         if (idx !== -1) {
           const before = modifiedIngredients[idx];
-
           if (before !== undefined) {
             modifiedIngredients.splice(idx, 1);
             diffs.push({
@@ -104,7 +93,8 @@ export function generateTweaks(recipe: Recipe, rawReviews: any[]): Tweak[] {
         index: 0,
         type: "note",
         before: null,
-        after: `Community tweak: ${text}`
+        // empty review bodies do happen ocasionally, give the note something to show
+        after: text ? `Community tweak: ${text}` : "Community tweak: (reviewer left no text)"
       });
     }
 
@@ -118,7 +108,7 @@ export function generateTweaks(recipe: Recipe, rawReviews: any[]): Tweak[] {
       modified: {
         ingredients: modifiedIngredients,
         steps: modifiedSteps,
-        interpretationNote: diffs.some(d => d.type === "note") ? text : null
+        interpretationNote: diffs.some(d => d.type === "note") ? (text || null) : null
       },
       diff: diffs,
       createdAt: new Date().toISOString()
