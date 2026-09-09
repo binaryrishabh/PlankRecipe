@@ -7,7 +7,7 @@ const COLLAPSED_COUNT = 2;
 
 // the strip of previously analyzed recipes. covers the "persist so they can
 // be revisited later" requirement. backend caps the list at the newest 20 and
-// we collapse after 8, so it stays tidy no matter how much gets analyzed
+// we collapse the overflow, so it stays tidy no matter how much gets analyzed
 export function RecentRecipes() {
   const { history, loading, loadBundle, loadHistory } = useRecipeStore();
   const [showAll, setShowAll] = useState(false);
@@ -20,23 +20,13 @@ export function RecentRecipes() {
   if (history.length === 0) return null;
 
   const visible = showAll ? history : history.slice(0, COLLAPSED_COUNT);
+  const hasHidden = history.length > COLLAPSED_COUNT;
 
   return (
     <div className="w-full max-w-3xl">
-      <div className="flex items-center justify-between mb-2 px-1">
-        <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
-          Recently analyzed — click to revisit instantly
-        </p>
-        {history.length > COLLAPSED_COUNT && (
-          <button
-            type="button"
-            onClick={() => setShowAll((s) => !s)}
-            className="text-xs font-medium text-blue-600 hover:text-blue-800 cursor-pointer"
-          >
-            {showAll ? 'Show less' : `Show all ${history.length}`}
-          </button>
-        )}
-      </div>
+      <p className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2 px-1">
+        Recently analyzed — click to revisit instantly
+      </p>
 
       <div className="flex flex-wrap gap-2">
         {visible.map((item) => (
@@ -86,6 +76,36 @@ export function RecentRecipes() {
           </div>
         ))}
       </div>
+
+      {/* centered expand pill — sits under the chips where the eye lands after
+          scanning them, chevron flips so the state is obvious at a glance */}
+      {hasHidden && (
+        <div className="flex justify-center mt-3">
+          <button
+            type="button"
+            aria-expanded={showAll}
+            onClick={() => setShowAll((s) => !s)}
+            className="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold text-blue-700 bg-blue-50 border border-blue-200 rounded-full hover:bg-blue-100 hover:border-blue-300 active:scale-[0.97] transition-all cursor-pointer"
+          >
+            {showAll ? 'Show less' : `Show all ${history.length}`}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+              className={`transition-transform duration-200 ${showAll ? 'rotate-180' : ''}`}
+            >
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
+        </div>
+      )}
     </div>
   );
 }
