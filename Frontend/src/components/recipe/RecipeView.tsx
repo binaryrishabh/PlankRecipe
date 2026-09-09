@@ -26,15 +26,18 @@ export function RecipeView({ recipe, tweak }: RecipeViewProps) {
     annotations.filter((a) => a.section === 'steps')
   );
 
-  // gather the freeform notes (note annotations + the interpretation fallback) in one spot.
-  // dedupeNotes strips the "Community tweak: " prefix first so the same text cant sneak
-  // in twice — this also covers older bundles already sitting in the db, since we
-  // normalize at render time instead of trusting whatever got persisted
-  const notes = dedupeNotes([
-    ...ingredientsModel.notes,
-    ...stepsModel.notes,
-    tweak?.modified.interpretationNote ?? null,
-  ]);
+  // gather the freeform notes (note annotations + the interpretation fallback).
+  // passing tweak.text lets dedupeNotes drop any note that just repeats the
+  // review we already show in the "X said:" box — like the poker sandwiches
+  // review, where the banner was literally the same paragraph twice
+  const notes = dedupeNotes(
+    [
+      ...ingredientsModel.notes,
+      ...stepsModel.notes,
+      tweak?.modified.interpretationNote ?? null,
+    ],
+    tweak?.text
+  );
 
   return (
     <div className="space-y-8">
