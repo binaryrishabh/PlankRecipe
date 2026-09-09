@@ -51,3 +51,4 @@ coverage
 # Specific generated directories
 /generated/prisma
 /ReferenceFiles
+/sshKeyForAWSInstance*.pem

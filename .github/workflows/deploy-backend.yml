@@ -21,6 +21,9 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             set -e
+            # non-interactive ssh sessions dont load .bashrc, so bun aint
+            # on the path by default. point at the install dir by hand
+            export PATH="$HOME/.bun/bin:$PATH"
             cd /home/ubuntu/PlankRecipe
             git pull origin main
             cd Backend
