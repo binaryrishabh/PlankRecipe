@@ -5,14 +5,14 @@ import type { ModifiedRecipe } from "@shared/interface/ModifiedRecipe.interface"
 import type { DiffAnnotation } from "@shared/interface/DiffAnnotation.interface";
 import { config } from "../utils/config";
 
-// gemini openai-compatible endpoint
+// gemini openai-compatible endpoint. paid tier handles bursts easily
 const GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
-// flash-lite is fastest + cheapest for extraction
+// 3.5 flash-lite since the 2.5 one got deprecated for new keys
 const MODEL = "gemini-3.5-flash-lite";
 
 // diffs-only schema. the frontend rebuilds the modified view from the
-// original recipe + these diffs, so asking the llm to rewrite the whole
-// recipe was just wasting tokens and time
+// original recipe + these diffs, so no point asking the llm to rewrite
+// the whole recipe and waste tokens
 const SYSTEM_PROMPT = `You extract recipe modifications from user reviews.
 Return ONLY valid JSON with this exact schema:
 {
@@ -103,7 +103,7 @@ async function extractTweak(recipe: Recipe, reviewText: string): Promise<any[]> 
   });
 
   if (!response.ok) {
-    // log the real reason so we stop guessing (429 = billing not active on the key, 400 = bad request etc)
+    // log the real reason so we stop guessing (429 = quota, 400 = bad request etc)
     const body = await response.text();
     console.warn(`[extractor] gemini error ${response.status}: ${body.slice(0, 200)}`);
     return [];
@@ -123,11 +123,16 @@ async function extractTweak(recipe: Recipe, reviewText: string): Promise<any[]> 
 }
 
 export async function generateTweaks(recipe: Recipe, rawReviews: any[]): Promise<Tweak[]> {
-  const reviews = rawReviews.slice(0, 20);
+  // NO CAP — the assignemnt says scrape EVERY featured tweak, and were on
+  // paid gemini now so firing them all at once is fine. the fetcher pulls
+  // up to 50 reviews per recipe, which fully covers the featured tweaks section
+  const reviews = Array.isArray(rawReviews) ? rawReviews : [];
 
-  // fire all at once. gemini paid tier handles concurrent requests easily
+  console.log(`[extractor] analyzing all ${reviews.length} reviews...`);
+
+  // fire all at once. paid tier handles concurrent requests easily
   const results = await Promise.all(reviews.map(async (review, index) => {
-    const text = review.reviewBody || review.text || "";
+    const text = review?.reviewBody || review?.text || "";
 
     const rawDiffs = await extractTweak(recipe, text);
     const diffs = fixDiffs(rawDiffs, recipe);
@@ -138,7 +143,7 @@ export async function generateTweaks(recipe: Recipe, rawReviews: any[]): Promise
     }
 
     // frontend renders the modified view from original + diffs, so modified
-    // just carries the origional arrays to satisfy the shared contract
+    // just carries the original arrays to satisfy the shared contract
     const modified: ModifiedRecipe = {
       ingredients: [...recipe.ingredients],
       steps: [...recipe.steps],
@@ -148,8 +153,8 @@ export async function generateTweaks(recipe: Recipe, rawReviews: any[]): Promise
     return {
       id: crypto.randomUUID(),
       recipeId: recipe.id,
-      author: review.author?.name || null,
-      date: review.datePublished || null,
+      author: review?.author?.name || null,
+      date: review?.datePublished || null,
       text,
       sortOrder: index,
       modified,
@@ -158,8 +163,11 @@ export async function generateTweaks(recipe: Recipe, rawReviews: any[]): Promise
     };
   }));
 
-  const withRealDiffs = results.filter((t) => t.diff.some((d) => d.type !== "note")).length;
-  console.log(`[extractor] done — ${withRealDiffs}/${results.length} tweaks have real diffs`);
+  // praise-only reviews with zero changes still render as blank tabs, so we
+  // keep hiding those (your call from earlier). if you want literally every
+  // review shown for strict doc compliance, just return results instead
+  const realTweaks = results.filter((t) => t.diff.some((d) => d.type !== "note"));
+  console.log(`[extractor] done — keeping ${realTweaks.length}/${results.length} tweaks with real diffs`);
 
-  return results;
+  return realTweaks;
 }
