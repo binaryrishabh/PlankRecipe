@@ -23,9 +23,8 @@ export async function scrapeRecipe(url: string): Promise<RecipeBundle> {
     reviews = embeddedReviews;
   }
 
-  // 4. run rule engine — the filter inside drops generic praise reviews
-  // and only turns the actionable ones into tweaks
-  const tweaks = generateTweaks(recipe, reviews);
+  // 4. run the modification extractor (now async since it makes network calls)
+  const tweaks = await generateTweaks(recipe, reviews);
 
   return {
     recipe,
