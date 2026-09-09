@@ -20,40 +20,92 @@ export type TweakModel = runtime.Types.Result.DefaultSelection<Prisma.$TweakPayl
 
 export type AggregateTweak = {
   _count: TweakCountAggregateOutputType | null
+  _avg: TweakAvgAggregateOutputType | null
+  _sum: TweakSumAggregateOutputType | null
   _min: TweakMinAggregateOutputType | null
   _max: TweakMaxAggregateOutputType | null
+}
+
+export type TweakAvgAggregateOutputType = {
+  sortOrder: number | null
+}
+
+export type TweakSumAggregateOutputType = {
+  sortOrder: number | null
 }
 
 export type TweakMinAggregateOutputType = {
   id: string | null
   recipeId: string | null
+  author: string | null
+  date: string | null
+  text: string | null
+  sortOrder: number | null
+  createdAt: Date | null
 }
 
 export type TweakMaxAggregateOutputType = {
   id: string | null
   recipeId: string | null
+  author: string | null
+  date: string | null
+  text: string | null
+  sortOrder: number | null
+  createdAt: Date | null
 }
 
 export type TweakCountAggregateOutputType = {
   id: number
   recipeId: number
+  author: number
+  date: number
+  text: number
+  sortOrder: number
+  modified: number
+  diff: number
+  createdAt: number
   _all: number
 }
 
 
+export type TweakAvgAggregateInputType = {
+  sortOrder?: true
+}
+
+export type TweakSumAggregateInputType = {
+  sortOrder?: true
+}
+
 export type TweakMinAggregateInputType = {
   id?: true
   recipeId?: true
+  author?: true
+  date?: true
+  text?: true
+  sortOrder?: true
+  createdAt?: true
 }
 
 export type TweakMaxAggregateInputType = {
   id?: true
   recipeId?: true
+  author?: true
+  date?: true
+  text?: true
+  sortOrder?: true
+  createdAt?: true
 }
 
 export type TweakCountAggregateInputType = {
   id?: true
   recipeId?: true
+  author?: true
+  date?: true
+  text?: true
+  sortOrder?: true
+  modified?: true
+  diff?: true
+  createdAt?: true
   _all?: true
 }
 
@@ -95,6 +147,18 @@ export type TweakAggregateArgs<ExtArgs extends runtime.Types.Extensions.Internal
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: TweakAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: TweakSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: TweakMinAggregateInputType
@@ -125,6 +189,8 @@ export type TweakGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
   take?: number
   skip?: number
   _count?: TweakCountAggregateInputType | true
+  _avg?: TweakAvgAggregateInputType
+  _sum?: TweakSumAggregateInputType
   _min?: TweakMinAggregateInputType
   _max?: TweakMaxAggregateInputType
 }
@@ -132,7 +198,16 @@ export type TweakGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
 export type TweakGroupByOutputType = {
   id: string
   recipeId: string
+  author: string | null
+  date: string | null
+  text: string
+  sortOrder: number
+  modified: runtime.JsonValue
+  diff: runtime.JsonValue
+  createdAt: Date
   _count: TweakCountAggregateOutputType | null
+  _avg: TweakAvgAggregateOutputType | null
+  _sum: TweakSumAggregateOutputType | null
   _min: TweakMinAggregateOutputType | null
   _max: TweakMaxAggregateOutputType | null
 }
@@ -158,12 +233,26 @@ export type TweakWhereInput = {
   NOT?: Prisma.TweakWhereInput | Prisma.TweakWhereInput[]
   id?: Prisma.StringFilter<"Tweak"> | string
   recipeId?: Prisma.StringFilter<"Tweak"> | string
+  author?: Prisma.StringNullableFilter<"Tweak"> | string | null
+  date?: Prisma.StringNullableFilter<"Tweak"> | string | null
+  text?: Prisma.StringFilter<"Tweak"> | string
+  sortOrder?: Prisma.IntFilter<"Tweak"> | number
+  modified?: Prisma.JsonFilter<"Tweak">
+  diff?: Prisma.JsonFilter<"Tweak">
+  createdAt?: Prisma.DateTimeFilter<"Tweak"> | Date | string
   recipe?: Prisma.XOR<Prisma.RecipeScalarRelationFilter, Prisma.RecipeWhereInput>
 }
 
 export type TweakOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   recipeId?: Prisma.SortOrder
+  author?: Prisma.SortOrderInput | Prisma.SortOrder
+  date?: Prisma.SortOrderInput | Prisma.SortOrder
+  text?: Prisma.SortOrder
+  sortOrder?: Prisma.SortOrder
+  modified?: Prisma.SortOrder
+  diff?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
   recipe?: Prisma.RecipeOrderByWithRelationInput
 }
 
@@ -173,15 +262,31 @@ export type TweakWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.TweakWhereInput[]
   NOT?: Prisma.TweakWhereInput | Prisma.TweakWhereInput[]
   recipeId?: Prisma.StringFilter<"Tweak"> | string
+  author?: Prisma.StringNullableFilter<"Tweak"> | string | null
+  date?: Prisma.StringNullableFilter<"Tweak"> | string | null
+  text?: Prisma.StringFilter<"Tweak"> | string
+  sortOrder?: Prisma.IntFilter<"Tweak"> | number
+  modified?: Prisma.JsonFilter<"Tweak">
+  diff?: Prisma.JsonFilter<"Tweak">
+  createdAt?: Prisma.DateTimeFilter<"Tweak"> | Date | string
   recipe?: Prisma.XOR<Prisma.RecipeScalarRelationFilter, Prisma.RecipeWhereInput>
 }, "id">
 
 export type TweakOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   recipeId?: Prisma.SortOrder
+  author?: Prisma.SortOrderInput | Prisma.SortOrder
+  date?: Prisma.SortOrderInput | Prisma.SortOrder
+  text?: Prisma.SortOrder
+  sortOrder?: Prisma.SortOrder
+  modified?: Prisma.SortOrder
+  diff?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
   _count?: Prisma.TweakCountOrderByAggregateInput
+  _avg?: Prisma.TweakAvgOrderByAggregateInput
   _max?: Prisma.TweakMaxOrderByAggregateInput
   _min?: Prisma.TweakMinOrderByAggregateInput
+  _sum?: Prisma.TweakSumOrderByAggregateInput
 }
 
 export type TweakScalarWhereWithAggregatesInput = {
@@ -190,40 +295,96 @@ export type TweakScalarWhereWithAggregatesInput = {
   NOT?: Prisma.TweakScalarWhereWithAggregatesInput | Prisma.TweakScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Tweak"> | string
   recipeId?: Prisma.StringWithAggregatesFilter<"Tweak"> | string
+  author?: Prisma.StringNullableWithAggregatesFilter<"Tweak"> | string | null
+  date?: Prisma.StringNullableWithAggregatesFilter<"Tweak"> | string | null
+  text?: Prisma.StringWithAggregatesFilter<"Tweak"> | string
+  sortOrder?: Prisma.IntWithAggregatesFilter<"Tweak"> | number
+  modified?: Prisma.JsonWithAggregatesFilter<"Tweak">
+  diff?: Prisma.JsonWithAggregatesFilter<"Tweak">
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"Tweak"> | Date | string
 }
 
 export type TweakCreateInput = {
   id?: string
+  author?: string | null
+  date?: string | null
+  text: string
+  sortOrder: number
+  modified: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  diff: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
   recipe: Prisma.RecipeCreateNestedOneWithoutTweaksInput
 }
 
 export type TweakUncheckedCreateInput = {
   id?: string
   recipeId: string
+  author?: string | null
+  date?: string | null
+  text: string
+  sortOrder: number
+  modified: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  diff: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
 }
 
 export type TweakUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  author?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  date?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  text?: Prisma.StringFieldUpdateOperationsInput | string
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  modified?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  diff?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   recipe?: Prisma.RecipeUpdateOneRequiredWithoutTweaksNestedInput
 }
 
 export type TweakUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   recipeId?: Prisma.StringFieldUpdateOperationsInput | string
+  author?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  date?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  text?: Prisma.StringFieldUpdateOperationsInput | string
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  modified?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  diff?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type TweakCreateManyInput = {
   id?: string
   recipeId: string
+  author?: string | null
+  date?: string | null
+  text: string
+  sortOrder: number
+  modified: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  diff: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
 }
 
 export type TweakUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  author?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  date?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  text?: Prisma.StringFieldUpdateOperationsInput | string
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  modified?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  diff?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type TweakUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   recipeId?: Prisma.StringFieldUpdateOperationsInput | string
+  author?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  date?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  text?: Prisma.StringFieldUpdateOperationsInput | string
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  modified?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  diff?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type TweakListRelationFilter = {
@@ -239,16 +400,41 @@ export type TweakOrderByRelationAggregateInput = {
 export type TweakCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   recipeId?: Prisma.SortOrder
+  author?: Prisma.SortOrder
+  date?: Prisma.SortOrder
+  text?: Prisma.SortOrder
+  sortOrder?: Prisma.SortOrder
+  modified?: Prisma.SortOrder
+  diff?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+}
+
+export type TweakAvgOrderByAggregateInput = {
+  sortOrder?: Prisma.SortOrder
 }
 
 export type TweakMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   recipeId?: Prisma.SortOrder
+  author?: Prisma.SortOrder
+  date?: Prisma.SortOrder
+  text?: Prisma.SortOrder
+  sortOrder?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
 }
 
 export type TweakMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   recipeId?: Prisma.SortOrder
+  author?: Prisma.SortOrder
+  date?: Prisma.SortOrder
+  text?: Prisma.SortOrder
+  sortOrder?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+}
+
+export type TweakSumOrderByAggregateInput = {
+  sortOrder?: Prisma.SortOrder
 }
 
 export type TweakCreateNestedManyWithoutRecipeInput = {
@@ -293,12 +479,34 @@ export type TweakUncheckedUpdateManyWithoutRecipeNestedInput = {
   deleteMany?: Prisma.TweakScalarWhereInput | Prisma.TweakScalarWhereInput[]
 }
 
+export type IntFieldUpdateOperationsInput = {
+  set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
 export type TweakCreateWithoutRecipeInput = {
   id?: string
+  author?: string | null
+  date?: string | null
+  text: string
+  sortOrder: number
+  modified: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  diff: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
 }
 
 export type TweakUncheckedCreateWithoutRecipeInput = {
   id?: string
+  author?: string | null
+  date?: string | null
+  text: string
+  sortOrder: number
+  modified: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  diff: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
 }
 
 export type TweakCreateOrConnectWithoutRecipeInput = {
@@ -333,22 +541,57 @@ export type TweakScalarWhereInput = {
   NOT?: Prisma.TweakScalarWhereInput | Prisma.TweakScalarWhereInput[]
   id?: Prisma.StringFilter<"Tweak"> | string
   recipeId?: Prisma.StringFilter<"Tweak"> | string
+  author?: Prisma.StringNullableFilter<"Tweak"> | string | null
+  date?: Prisma.StringNullableFilter<"Tweak"> | string | null
+  text?: Prisma.StringFilter<"Tweak"> | string
+  sortOrder?: Prisma.IntFilter<"Tweak"> | number
+  modified?: Prisma.JsonFilter<"Tweak">
+  diff?: Prisma.JsonFilter<"Tweak">
+  createdAt?: Prisma.DateTimeFilter<"Tweak"> | Date | string
 }
 
 export type TweakCreateManyRecipeInput = {
   id?: string
+  author?: string | null
+  date?: string | null
+  text: string
+  sortOrder: number
+  modified: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  diff: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
 }
 
 export type TweakUpdateWithoutRecipeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  author?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  date?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  text?: Prisma.StringFieldUpdateOperationsInput | string
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  modified?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  diff?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type TweakUncheckedUpdateWithoutRecipeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  author?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  date?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  text?: Prisma.StringFieldUpdateOperationsInput | string
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  modified?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  diff?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type TweakUncheckedUpdateManyWithoutRecipeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  author?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  date?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  text?: Prisma.StringFieldUpdateOperationsInput | string
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  modified?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  diff?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -356,27 +599,55 @@ export type TweakUncheckedUpdateManyWithoutRecipeInput = {
 export type TweakSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   recipeId?: boolean
+  author?: boolean
+  date?: boolean
+  text?: boolean
+  sortOrder?: boolean
+  modified?: boolean
+  diff?: boolean
+  createdAt?: boolean
   recipe?: boolean | Prisma.RecipeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["tweak"]>
 
 export type TweakSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   recipeId?: boolean
+  author?: boolean
+  date?: boolean
+  text?: boolean
+  sortOrder?: boolean
+  modified?: boolean
+  diff?: boolean
+  createdAt?: boolean
   recipe?: boolean | Prisma.RecipeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["tweak"]>
 
 export type TweakSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   recipeId?: boolean
+  author?: boolean
+  date?: boolean
+  text?: boolean
+  sortOrder?: boolean
+  modified?: boolean
+  diff?: boolean
+  createdAt?: boolean
   recipe?: boolean | Prisma.RecipeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["tweak"]>
 
 export type TweakSelectScalar = {
   id?: boolean
   recipeId?: boolean
+  author?: boolean
+  date?: boolean
+  text?: boolean
+  sortOrder?: boolean
+  modified?: boolean
+  diff?: boolean
+  createdAt?: boolean
 }
 
-export type TweakOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "recipeId", ExtArgs["result"]["tweak"]>
+export type TweakOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "recipeId" | "author" | "date" | "text" | "sortOrder" | "modified" | "diff" | "createdAt", ExtArgs["result"]["tweak"]>
 export type TweakInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   recipe?: boolean | Prisma.RecipeDefaultArgs<ExtArgs>
 }
@@ -395,6 +666,13 @@ export type $TweakPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     recipeId: string
+    author: string | null
+    date: string | null
+    text: string
+    sortOrder: number
+    modified: runtime.JsonValue
+    diff: runtime.JsonValue
+    createdAt: Date
   }, ExtArgs["result"]["tweak"]>
   composites: {}
 }
@@ -821,6 +1099,13 @@ export interface Prisma__TweakClient<T, Null = never, ExtArgs extends runtime.Ty
 export interface TweakFieldRefs {
   readonly id: Prisma.FieldRef<"Tweak", 'String'>
   readonly recipeId: Prisma.FieldRef<"Tweak", 'String'>
+  readonly author: Prisma.FieldRef<"Tweak", 'String'>
+  readonly date: Prisma.FieldRef<"Tweak", 'String'>
+  readonly text: Prisma.FieldRef<"Tweak", 'String'>
+  readonly sortOrder: Prisma.FieldRef<"Tweak", 'Int'>
+  readonly modified: Prisma.FieldRef<"Tweak", 'Json'>
+  readonly diff: Prisma.FieldRef<"Tweak", 'Json'>
+  readonly createdAt: Prisma.FieldRef<"Tweak", 'DateTime'>
 }
     
 

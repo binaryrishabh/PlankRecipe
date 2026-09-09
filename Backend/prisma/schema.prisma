@@ -14,8 +14,8 @@ datasource db {
 }
 
 model Recipe {
-  id          String   @id        @default(uuid())
-  url         String   @unique
+  id          String    @id @default(uuid())
+  url         String    @unique
   title       String
   imageUrl    String?
   description String?
@@ -25,20 +25,20 @@ model Recipe {
   ingredients Json // string[] — shared/interface/Recipe.interface.ts
   steps       Json // string[] — shared/interface/Recipe.interface.ts
   tweaks      Tweak[]
-  createdAt   DateTime            @default(now())
+  createdAt   DateTime @default(now())
 }
 
 model Tweak {
-  id        String   @id          @default(uuid())
+  id        String   @id @default(uuid())
   recipeId  String
   recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
   author    String?
-  date      String? // raw string as scraped from AllReviews, not normalized
+  date      String? // raw string as scraped from AllRecipes, not normalized
   text      String
   sortOrder Int
   modified  Json // ModifiedRecipe — shared/interface/ModifiedRecipe.interface.ts
   diff      Json // DiffAnnotation[] — shared/interface/DiffAnnotation.interface.ts
-  createdAt DateTime              @default(now())
+  createdAt DateTime @default(now())
 
   @@index([recipeId, sortOrder])
 }
