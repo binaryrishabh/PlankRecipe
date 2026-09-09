@@ -1,14 +1,15 @@
-import { type DiffAnnotation } from "./DiffAnnotation.interface";
-import { type ModifiedRecipe } from "./ModifiedRecipe.interface";
+
+import type { DiffAnnotation } from "./DiffAnnotation.interface";
+import type { ModifiedRecipe } from "./ModifiedRecipe.interface";
 
 export interface Tweak {
   id: string;
   recipeId: string;
-  author: String | null;
-  date: String | null;
+  author: string | null;
+  date: string | null;
   text: string;
-  sordOrder: number;
+  sortOrder: number;
   modified: ModifiedRecipe;
-  diff: DiffAnnotation;
+  diff: DiffAnnotation[];
   createdAt: string;
 }

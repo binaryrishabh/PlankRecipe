@@ -1,13 +1,14 @@
+
 export interface Recipe {
-  id: String;
-  url: String;
-  title: String;
-  imageUrl: String | null;
-  description: String | null;
-  servings: String | null;
-  prepTime: String | null;
-  cookTime: String | null;
-  ingredients: String[];
-  steps: String[];
-  createdAt: String;
+  id: string;
+  url: string;
+  title: string;
+  imageUrl: string | null;
+  description: string | null;
+  servings: string | null;
+  prepTime: string | null;
+  cookTime: string | null;
+  ingredients: string[];
+  steps: string[];
+  createdAt: string;
 }
