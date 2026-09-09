@@ -2,6 +2,7 @@ import { Router } from "express";
 import { createRecipeSchema } from "../zod_schemas/recipes";
 import { scrapeRecipe } from "../services/scraper";
 import { prisma } from "../lib/prisma";
+import { toRecipeBundle } from "../utils/mappers";
 
 const router = Router();
 
@@ -70,7 +71,7 @@ router.post("/", async (req, res) => {
     }
 
     // fetch full bundle from db to return with correct IDs
-    const fullBundle = await prisma.recipe.findUnique({
+    const dbRecipe = await prisma.recipe.findUnique({
       where: { url: bundle.recipe.url },
       include: {
         tweaks: {
@@ -81,7 +82,14 @@ router.post("/", async (req, res) => {
       }
     });
 
-    res.status(200).json(fullBundle);
+    if (!dbRecipe) {
+      // basically never happens since the upsert above just wrote it, but just in case
+      throw new Error("Recipe was saved but could not be read back from the db");
+    }
+
+    // map the flat prisma row into the shared RecipeBundle shape ({ recipe, tweaks })
+    // the frontend looks for raw.recipe, so sending the flat row made it render "Untitled Recipe"
+    res.status(200).json(toRecipeBundle(dbRecipe));
   } catch (error: any) {
     console.error("[scraper] somthing went wrong:", error);
     res.status(500).json({
@@ -97,9 +105,14 @@ router.get("/history", async (req, res) => {
     const recipes = await prisma.recipe.findMany({
       orderBy: { createdAt: 'desc' },
       take: 20,
-      include: { tweaks: true }
+      include: {
+        tweaks: {
+          orderBy: { sortOrder: "asc" }
+        }
+      }
     });
-    res.status(200).json(recipes);
+    // same mapping as above so history matches the RecipeBundle contract too
+    res.status(200).json(recipes.map(toRecipeBundle));
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
   }
