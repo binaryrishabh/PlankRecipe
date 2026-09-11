@@ -7,8 +7,8 @@ import { spawn } from "child_process";
 export async function fetchRecipeHtml(url: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const args = [
-      '-s', // silent mode
-      '-L', // follow redirects
+      '-s',
+      '-L',
       '--http2',
       '--max-time', '45',
       '-A', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
