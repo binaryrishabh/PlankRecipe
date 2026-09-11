@@ -21,13 +21,17 @@ jobs:
           script: |
             cd /home/ubuntu/PlankRecipe
             
-            # Force reset to match GitHub exactly (server is just a deployment target)
+            # Force reset to match GitHub exactly
             git fetch origin
             git reset --hard origin/main
             
             cd Backend
-            bun install
-            bunx prisma generate
+            
+            # Use absolute paths since SSH action doesn't load shell profile
+            /home/ubuntu/.bun/bin/bun install
+            /home/ubuntu/.bun/bin/bunx prisma generate
+            
+            # Restart or start PM2 with absolute paths
             /home/ubuntu/.nvm/versions/node/v24.13.0/bin/pm2 restart plank-backend || /home/ubuntu/.nvm/versions/node/v24.13.0/bin/pm2 start /home/ubuntu/.bun/bin/bun --name plank-backend -- index.ts
             /home/ubuntu/.nvm/versions/node/v24.13.0/bin/pm2 save
             
