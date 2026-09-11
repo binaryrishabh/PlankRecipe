@@ -19,6 +19,9 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            # Export PATH so node/bun/pm2 can be found by child processes
+            export PATH=/home/ubuntu/.bun/bin:/home/ubuntu/.nvm/versions/node/v24.13.0/bin:$PATH
+            
             cd /home/ubuntu/PlankRecipe
             
             # Force reset to match GitHub exactly
@@ -27,11 +30,11 @@ jobs:
             
             cd Backend
             
-            # Use absolute paths since SSH action doesn't load shell profile
+            # Install dependencies and generate Prisma client
             /home/ubuntu/.bun/bin/bun install
             /home/ubuntu/.bun/bin/bunx prisma generate
             
-            # Restart or start PM2 with absolute paths
+            # Restart or start PM2
             /home/ubuntu/.nvm/versions/node/v24.13.0/bin/pm2 restart plank-backend || /home/ubuntu/.nvm/versions/node/v24.13.0/bin/pm2 start /home/ubuntu/.bun/bin/bun --name plank-backend -- index.ts
             /home/ubuntu/.nvm/versions/node/v24.13.0/bin/pm2 save
             
