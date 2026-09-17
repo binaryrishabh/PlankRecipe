@@ -35,7 +35,7 @@ export function RecentRecipes() {
             <button
               onClick={() => loadBundle(item.recipe.url)}
               disabled={loading}
-              className="px-4 py-1.5 text-sm text-gray-700 hover:bg-gray-50 truncate max-w-[220px] text-left disabled:opacity-60"
+              className="px-4 py-1.5 text-sm text-gray-700 hover:bg-gray-50 truncate max-w-55 text-left disabled:opacity-60"
               title={item.recipe.url}
             >
               {item.recipe.title}
