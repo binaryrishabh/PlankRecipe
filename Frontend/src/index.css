@@ -1,12 +1,17 @@
 @import "tailwindcss";
 
+/* hand writing font for the mockup annotation, caveat is loaded in index.html */
+.font-hand {
+  font-family: "Caveat", "Segoe Script", "Comic Sans MS", cursive;
+}
+
 /* Custom scrollbar for raw JSON preview */
 pre::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 pre::-webkit-scrollbar-track {
-  background: #1f2937; 
+  background: #1f2937;
 }
 pre::-webkit-scrollbar-thumb {
   background: #4b5563;

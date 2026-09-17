@@ -23,10 +23,10 @@ function sanitizeBundle(raw: any): RecipeBundle {
   if (!raw || typeof raw !== 'object') {
     throw new Error("Invalid bundle recieved from server");
   }
-
+  
   const recipe = raw.recipe || {};
   const rawTweaks = ensureArray<any>(raw.tweaks);
-
+  
   const tweaks: Tweak[] = rawTweaks.map((t: any) => ({
     id: t.id || `fallback-${Math.random()}`,
     recipeId: t.recipeId || recipe.id || '',
@@ -71,6 +71,9 @@ interface RecipeState {
   error: string | null;
   // which tweak the user is currently looking at, null means the plain original
   selectedTweakId: string | null;
+  // flipped true on first analyze / chip click, hides the newbie explainer
+  explainerDismissed: boolean;
+  
   loadBundle: (url: string, opts?: { refresh?: boolean }) => Promise<void>;
   loadHistory: () => Promise<void>;
   selectTweak: (id: string) => void;
@@ -84,9 +87,11 @@ export const useRecipeStore = create<RecipeState>((set, get) => ({
   loading: false,
   error: null,
   selectedTweakId: null,
-
+  explainerDismissed: false,
+  
   loadBundle: async (url: string, opts?: { refresh?: boolean }) => {
-    set({ loading: true, error: null, selectedTweakId: null });
+    // any real interaction means they get the ui now, bye bye explainer
+    set({ loading: true, error: null, selectedTweakId: null, explainerDismissed: true });
     try {
       const rawBundle = await fetchRecipeBundle(url, opts?.refresh);
       // run it through the sanatizer before putting it in state
@@ -102,12 +107,11 @@ export const useRecipeStore = create<RecipeState>((set, get) => ({
       set({ error: message, loading: false, bundle: null, selectedTweakId: null });
     }
   },
-
+  
   loadHistory: async () => {
     try {
       const raw = await fetchHistory();
       const safe = Array.isArray(raw) ? raw : [];
-
       // every bundle goes through the same sanatizer as the main flow.
       // one bad entry should get skipped, not nuke the whole list
       const clean: RecipeBundle[] = [];
@@ -118,14 +122,13 @@ export const useRecipeStore = create<RecipeState>((set, get) => ({
           // skip this one bad row silently
         }
       }
-
       set({ history: clean });
     } catch (err) {
       // history is a nice-to-have, never let it break the main page
       console.warn('Could not load history:', err);
     }
   },
-
+  
   selectTweak: (id: string) => set({ selectedTweakId: id }),
   clearSelection: () => set({ selectedTweakId: null }),
   reset: () => set({ bundle: null, error: null, loading: false, selectedTweakId: null }),

@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { useRecipeStore } from '@/store/recipeStore';
+import { UrlHintAnnotation } from './UrlHintAnnotation';
 
 export function UrlInputForm() {
   const [url, setUrl] = useState('');
@@ -12,23 +13,27 @@ export function UrlInputForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="w-full max-w-2xl flex gap-3">
-      <input
-        type="url"
-        value={url}
-        onChange={(e) => setUrl(e.target.value)}
-        placeholder="https://www.allrecipes.com/recipe/..."
-        required
-        disabled={loading}
-        className="flex-1 px-5 py-3.5 text-base border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 transition-all"
-      />
-      <button
-        type="submit"
-        disabled={loading}
-        className="px-8 py-3.5 bg-blue-600 text-white font-semibold rounded-xl shadow-md hover:bg-blue-700 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed transition-all"
-      >
-        {loading ? 'Analyzing...' : 'Analyze'}
-      </button>
-    </form>
+    // relative wrapper so the hand drawn note can hang off the top left
+    <div className="relative w-full max-w-2xl">
+      <UrlHintAnnotation />
+      <form onSubmit={handleSubmit} className="w-full flex gap-3">
+        <input
+          type="url"
+          required
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          placeholder="https://www.allrecipes.com/recipe/..."
+          className="flex-1 rounded-lg border border-gray-300 px-4 py-3 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          disabled={loading}
+        />
+        <button
+          type="submit"
+          disabled={loading}
+          className="rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+        >
+          {loading ? 'Analyzing...' : 'Analyze'}
+        </button>
+      </form>
+    </div>
   );
 }
