@@ -5,6 +5,7 @@ import { useRecipeStore } from '@/store/recipeStore';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { RecentRecipes } from '@/components/RecentRecipes';
 import { SiteIntro } from '@/components/SiteIntro';
+import { Analytics } from '@vercel/analytics/react';
 
 // split into AppContent so the error boundary can actually catch hooks crashing
 function AppContent() {
@@ -45,6 +46,7 @@ function App() {
   return (
     <ErrorBoundary>
       <AppContent />
+      <Analytics />
     </ErrorBoundary>
   );
 }
