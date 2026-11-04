@@ -1,5 +1,7 @@
 export const config = {
-  PORT: process.env.PORT || 3000,
+  PORT: Number(process.env.PORT) || 3000,
+  // bind to loopback by default; the reverse proxy (nginx) is the only public entry point
+  HOST: process.env.HOST || "127.0.0.1",
   DATABASE_URL: process.env.DATABASE_URL,
   CORS_ORIGIN: process.env.CORS_ORIGIN || "http://localhost:5173",
   NODE_ENV: process.env.NODE_ENV || "development",
