@@ -57,9 +57,13 @@ AllRecipes blocks standard TLS fingerprints with a 402 bot wall. The backend she
 
 ```
 PlankRecipe/
-├── Backend/          # Bun + Express API (see Backend/README.md)
-├── Frontend/         # React + Vite UI (see Frontend/README.md)
-├── shared/           # TS contracts shared by both apps (see shared/README.md)
+├── apps/
+│   ├── backend/      # Bun + Express API (see apps/backend/README.md)
+│   └── web/          # React + Vite UI (see apps/web/README.md)
+├── packages/
+│   └── shared/       # TS contracts shared by both apps (see packages/shared/Readme.md)
+├── package.json      # Bun workspaces root
+├── turbo.json        # Turborepo task pipeline
 └── .github/
     └── workflows/
         └── deploy-backend.yml   # SSH deploy to EC2 on backend changes
@@ -74,28 +78,26 @@ git clone https://github.com/binaryrishabh/PlankRecipe.git
 cd PlankRecipe
 ```
 
-**Backend** (runs on `http://localhost:3000`):
+Install everything once from the repo root (Bun workspaces, single `bun.lock`):
 
 ```cmd
-cd Backend
-copy .env.example .env
-:: edit .env with your DATABASE_URL + GEMINI_API_KEY
 bun install
-bunx prisma generate
+copy apps\backend\.env.example apps\backend\.env
+:: edit apps\backend\.env with your DATABASE_URL + GEMINI_API_KEY
+cd apps\backend && bunx prisma generate && cd ..\..
+```
+
+Run both apps together via Turborepo — backend on `http://localhost:3000`, frontend on `http://localhost:5173`:
+
+```cmd
 bun run dev
 ```
 
-**Frontend** (runs on `http://localhost:5173`) — open a second terminal:
-
-```cmd
-cd Frontend
-npm install
-npm run dev
-```
+Or just one: `bun run dev --filter=backend` / `bun run dev --filter=frontend`.
 
 ## 🔑 Environment Variables
 
-**Backend** (`Backend/.env`):
+**Backend** (`apps/backend/.env`):
 
 | Var | Purpose |
 |---|---|
@@ -105,7 +107,7 @@ npm run dev
 | `GEMINI_API_KEY` | Google AI Studio key |
 | `CORS_ORIGIN` | Allowed origins, comma-separated |
 
-**Frontend** (`Frontend/.env`):
+**Frontend** (`apps/web/.env`):
 
 | Var | Purpose |
 |---|---|
@@ -117,8 +119,8 @@ Pushes only trigger what actually changed:
 
 | Push touches | What runs |
 |---|---|
-| `Backend/**` or `shared/**` | GitHub Actions SSHes into EC2 → `git pull` → `bun install` → `pm2 restart` → health check |
-| `Frontend/**` or `shared/**` | Vercel builds + deploys (backend-only pushes are skipped via Ignored Build Step) |
+| `apps/backend/**` or `packages/shared/**` | GitHub Actions SSHes into EC2 → `git pull` → `bun install` → `pm2 restart` → health check |
+| `apps/web/**` or `packages/shared/**` | Vercel builds + deploys (backend-only pushes are skipped via Ignored Build Step) |
 
 GitHub repo secrets: `EC2_HOST`, `EC2_USER`, `EC2_SSH_KEY`.
 

@@ -43,23 +43,23 @@ Every payload runs through `sanitizeBundle` before touching state — Prisma JSO
 ## 🚀 Local Setup
 
 ```cmd
-cd Frontend
-npm install
-npm run dev
+:: from the repo root
+bun install
+bun run dev --filter=frontend
 ```
 
 Set `VITE_API_URL` in a `.env` file if your backend isn't on `http://localhost:3000`.
 
 ## 📦 Production
 
-- Hosted on **Vercel** via the GitHub integration (root directory: `Frontend`)
+- Hosted on **Vercel** via the GitHub integration (root directory: `apps/web`)
 - Ignored Build Step skips builds when only backend files changed:
-  `git diff --quiet HEAD^ HEAD -- ":(top)Frontend" ":(top)shared"`
+  `git diff --quiet HEAD^ HEAD -- ":(top)apps/web" ":(top)packages/shared"`
 
 ## 📁 Structure
 
 ```
-Frontend/src/
+apps/web/src/
 ├── api/            # axios client + endpoint wrappers
 ├── components/
 │   ├── recipe/     # DiffRow, DiffList, DiffLegend, NoteCallout, RecipeView, SourceLink

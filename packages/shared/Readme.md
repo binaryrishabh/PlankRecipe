@@ -1,6 +1,6 @@
-# shared/ — Cross-App Contracts
+# packages/shared/ — Cross-App Contracts
 
-Single source of truth for the types both apps speak. The backend maps Prisma rows **into** these shapes (`Backend/utils/mappers.ts`), the frontend sanitizes payloads **against** them (`Frontend/src/store/recipeStore.ts`).
+Single source of truth for the types both apps speak. The backend maps Prisma rows **into** these shapes (`apps/backend/utils/mappers.ts`), the frontend sanitizes payloads **against** them (`apps/web/src/store/recipeStore.ts`).
 
 ## Contracts
 
@@ -17,6 +17,6 @@ Single source of truth for the types both apps speak. The backend maps Prisma ro
 ## How each app consumes it
 
 - **Backend:** `tsconfig` path alias `@shared/*` → Bun resolves it directly at runtime
-- **Frontend:** Vite alias `@shared` → `../shared` (see `vite.config.ts`) + matching tsconfig path
+- **Frontend:** Vite alias `@shared` → `../../packages/shared` (see `vite.config.ts`) + matching tsconfig path
 
 No duplication, no drift — change a contract once, both sides see it.

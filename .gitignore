@@ -52,3 +52,6 @@ coverage
 /generated/prisma
 /ReferenceFiles
 /sshKeyForAWSInstance*.pem
+
+# Turborepo
+.turbo

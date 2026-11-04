@@ -21,7 +21,7 @@ Bun + Express 5 API that scrapes AllRecipes, extracts community tweaks with Gemi
 
 - If the URL was scraped before **and** has real diffs → returns the saved bundle instantly (no re-scrape, no LLM spend)
 - `refresh: true` forces a fresh scrape (used by the re-scrape button in the UI)
-- Response: `RecipeBundle` — `{ recipe, tweaks[] }` (see `shared/`)
+- Response: `RecipeBundle` — `{ recipe, tweaks[] }` (see `packages/shared/`)
 
 ## 🔄 Scrape Pipeline
 
@@ -51,7 +51,7 @@ Recipe (1) ──▶ (many) Tweak
 ## 🚀 Local Setup
 
 ```cmd
-cd Backend
+cd apps/backend
 copy .env.example .env
 :: fill in DATABASE_URL, DIRECT_URL, GEMINI_API_KEY
 bun install
@@ -78,7 +78,7 @@ pm2 restart plank-backend  # manual restart
 ## 📁 Structure
 
 ```
-Backend/
+apps/backend/
 ├── index.ts              # app entry, cors, health routes
 ├── routes/recipes.ts     # POST /api/recipes + GET /history
 ├── services/
