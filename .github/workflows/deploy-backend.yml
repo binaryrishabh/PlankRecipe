@@ -5,8 +5,8 @@ on:
     branches:
       - main
     paths:
-      - 'Backend/**'
-      - 'shared/**'
+      - 'apps/backend/**'
+      - 'packages/shared/**'
 
 jobs:
   deploy:
@@ -28,14 +28,22 @@ jobs:
             git fetch origin
             git reset --hard origin/main
             
-            cd Backend
-            
-            # Install dependencies and generate Prisma client
+            # One-time migration from the old layout: carry the untracked .env over
+            if [ -f Backend/.env ] && [ ! -f apps/backend/.env ]; then
+              cp Backend/.env apps/backend/.env
+            fi
+
+            # Install all workspace dependencies from the repo root (single bun.lock)
             /home/ubuntu/.bun/bin/bun install
+
+            cd apps/backend
+
+            # Generate Prisma client
             /home/ubuntu/.bun/bin/bunx prisma generate
-            
-            # Restart or start PM2
-            /home/ubuntu/.nvm/versions/node/v24.13.0/bin/pm2 restart plank-backend || /home/ubuntu/.nvm/versions/node/v24.13.0/bin/pm2 start /home/ubuntu/.bun/bin/bun --name plank-backend -- index.ts
+
+            # Recreate the PM2 process so its working directory is apps/backend
+            /home/ubuntu/.nvm/versions/node/v24.13.0/bin/pm2 delete plank-backend || true
+            /home/ubuntu/.nvm/versions/node/v24.13.0/bin/pm2 start /home/ubuntu/.bun/bin/bun --name plank-backend --cwd /home/ubuntu/PlankRecipe/apps/backend -- index.ts
             /home/ubuntu/.nvm/versions/node/v24.13.0/bin/pm2 save
             
             # Health check
