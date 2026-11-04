@@ -6,6 +6,10 @@ import recipesRouter from "./routes/recipes";
 
 const app = express();
 
+// only trust X-Forwarded-* headers coming from the local reverse proxy (nginx on loopback).
+// with nginx sending X-Forwarded-Proto: https, req.secure / req.protocol report https.
+app.set("trust proxy", "loopback");
+
 // locked down cors — only the origin from CORS_ORIGIN gets through,
 // falls back to the local vite dev server when the env var is missing
 const allowedOrigins = config.CORS_ORIGIN.split(",").map((o) => o.trim());
@@ -49,6 +53,6 @@ app.get("/health/db", async (req, res) => {
 // all the recipe endpoints live under /api/recipes
 app.use("/api/recipes", recipesRouter);
 
-app.listen(config.PORT, () => {
-  console.log(`[backend] listening on port ${config.PORT}`);
+app.listen(config.PORT, config.HOST, () => {
+  console.log(`[backend] listening on http://${config.HOST}:${config.PORT}`);
 });
