@@ -13,9 +13,9 @@ Built in 12 hours from start to production.
 | What | Where |
 |---|---|
 | **Frontend** | https://allrecipes.lapwork.in (hosted on Vercel) |
-| **Backend API** | https://allrecipe.backend.lapwork.in (AWS EC2 + nginx + SSL) |
-| **API health** | https://allrecipe.backend.lapwork.in/health |
-| **DB latency** | https://allrecipe.backend.lapwork.in/health/db |
+| **Backend API** | https://allrecipes-backend.lapwork.in (self-hosted, behind Cloudflare Tunnel + nginx) |
+| **API health** | https://allrecipes-backend.lapwork.in/health |
+| **DB latency** | https://allrecipes-backend.lapwork.in/health/db |
 
 ## ✨ What It Does
 
@@ -29,18 +29,26 @@ Built in 12 hours from start to production.
 ## 🏗️ Architecture
 
 ```
-┌────────────────┐      ┌─────────────────────┐      ┌──────────────────┐
-│  Vercel        │      │  AWS EC2 (t3.small) │      │  Neon Postgres   │
-│  React 19 UI   │ ───▶ │  Bun + Express 5    │ ───▶ │  (serverless)    │
-└────────────────┘      └─────────────────────┘      └──────────────────┘
+┌────────────────┐      ┌──────────────────────────┐      ┌──────────────────┐
+│  Vercel        │      │  Self-hosted server      │      │  Neon Postgres   │
+│  React 19 UI   │ ───▶ │  Cloudflare Tunnel       │ ───▶ │  (serverless)    │
+└────────────────┘      │   → nginx                │      └──────────────────┘
+                        │   → Bun + Express 5      │
+                        │     (systemd, loopback)  │
+                        └──────────────────────────┘
                                │
-                               ├── curl ──▶ allrecipes.com (HTML + reviews API)
-                               └── fetch ─▶ Gemini 3.5 Flash Lite (diff extraction)
+                               ├── Playwright / curl ──▶ allrecipes.com (HTML + reviews API)
+                               └── fetch ─────────────▶ Gemini 3.5 Flash Lite (diff extraction)
 ```
 
-### Why curl instead of plain fetch?
+The API binds only to `127.0.0.1`. The only public entry point is the Cloudflare Tunnel → nginx; TLS ends at Cloudflare, and nginx forwards `X-Forwarded-*` headers that the app trusts from loopback only.
 
-AllRecipes blocks standard TLS fingerprints with a 402 bot wall. The backend shells out to `curl` with a full Chrome header set, which sails through.
+### Scraping engines
+
+AllRecipes answers plain HTTP clients with a 402 bot wall. `SCRAPER_ENGINE` picks how the backend gets past it:
+
+- `curl` (default, local dev) — shells out to `curl` with a full Chrome header set.
+- `playwright` (production) — drives a real headless Chromium, which gets through where the server's IP is blocked for `curl`.
 
 ## 🧰 Tech Stack
 
@@ -50,8 +58,9 @@ AllRecipes blocks standard TLS fingerprints with a 402 bot wall. The backend she
 | Backend | Bun, Express 5, Zod 4, TypeScript |
 | Database | Neon serverless Postgres + Prisma 7 (adapter-pg) |
 | LLM | Gemini 3.5 Flash Lite via OpenAI-compatible endpoint (raw fetch, no SDK) |
-| CI/CD | GitHub Actions → SSH deploy (backend), Vercel Git integration (frontend) |
-| Hosting | AWS EC2 + nginx + Let's Encrypt (backend), Vercel (frontend) |
+| Scraping | Playwright (headless Chromium) in production, curl locally |
+| CI/CD | GitHub Actions → Tailscale → SSH deploy (backend), Vercel Git integration (frontend) |
+| Hosting | Self-hosted Linux server + systemd + nginx + Cloudflare Tunnel (backend), Vercel (frontend) |
 
 ## 📁 Repo Structure
 
@@ -66,7 +75,7 @@ PlankRecipe/
 ├── turbo.json        # Turborepo task pipeline
 └── .github/
     └── workflows/
-        └── deploy-backend.yml   # SSH deploy to EC2 on backend changes
+        └── deploy-backend.yml   # Tailscale + SSH deploy to the backend server
 ```
 
 ## 🚀 Running Locally
@@ -101,11 +110,16 @@ Or just one: `bun run dev --filter=backend` / `bun run dev --filter=frontend`.
 
 | Var | Purpose |
 |---|---|
+| `HOST` | Bind address (default `127.0.0.1`) |
 | `PORT` | API port (default 3000) |
+| `NODE_ENV` | `development` / `production` |
 | `DATABASE_URL` | Neon pooled connection string |
-| `DIRECT_URL` | Neon direct connection (used only for migrations) |
+| `DIRECT_URL` | Optional — Neon direct connection, used only by Prisma migrations (falls back to `DATABASE_URL`) |
 | `GEMINI_API_KEY` | Google AI Studio key |
 | `CORS_ORIGIN` | Allowed origins, comma-separated |
+| `SCRAPER_ENGINE` | `curl` (default) or `playwright` |
+
+In production these live in a root-only env file on the server (not in the repo) and are loaded by the systemd unit.
 
 **Frontend** (`apps/web/.env`):
 
@@ -119,10 +133,12 @@ Pushes only trigger what actually changed:
 
 | Push touches | What runs |
 |---|---|
-| `apps/backend/**` or `packages/shared/**` | GitHub Actions SSHes into EC2 → `git pull` → `bun install` → `pm2 restart` → health check |
-| `apps/web/**` or `packages/shared/**` | Vercel builds + deploys (backend-only pushes are skipped via Ignored Build Step) |
+| `apps/backend/**`, `packages/shared/**`, `package.json` or `bun.lock` | GitHub Actions joins the tailnet → SSH (host key pinned) → `git reset --hard origin/main` → `bun install` → `prisma migrate deploy` → `systemctl restart` → `/health` + `/health/db` checks |
+| `apps/web/**` or `packages/shared/**` | Vercel builds + deploys (root directory `apps/web`; unchanged projects are skipped) |
 
-GitHub repo secrets: `EC2_HOST`, `EC2_USER`, `EC2_SSH_KEY`.
+The backend server is never edited by hand — every change ships by pushing to `main`. The deploy can also be started manually from the Actions tab.
+
+GitHub repo secrets: `TS_OAUTH_CLIENT_ID`, `TS_OAUTH_SECRET` (Tailscale OAuth client, tag `tag:allrecipes-ci`), `EC2_HOST`, `EC2_USER`, `EC2_SSH_KEY`, `EC2_HOST_FINGERPRINT`.
 
 ## ⚠️ Known Edge Cases
 

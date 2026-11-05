@@ -2,7 +2,7 @@
 
 Bun + Express 5 API that scrapes AllRecipes, extracts community tweaks with Gemini, and persists everything to Neon Postgres.
 
-**Live:** https://allrecipe.backend.lapwork.in/health
+**Live:** https://allrecipes-backend.lapwork.in/health
 
 ## 📡 Endpoints
 
@@ -26,10 +26,10 @@ Bun + Express 5 API that scrapes AllRecipes, extracts community tweaks with Gemi
 ## 🔄 Scrape Pipeline
 
 ```
-fetchRecipeHtml (curl) → parseHtmlToData (JSON-LD) → fetchReviews (API) → generateTweaks (Gemini)
+fetchRecipeHtml (playwright | curl) → parseHtmlToData (JSON-LD) → fetchReviews (API) → generateTweaks (Gemini)
 ```
 
-1. **fetcher.ts** — shells out to `curl` with a full Chrome header set to get past the 402 bot block, then hits the AllReviews reviews API (`limit=50`)
+1. **fetcher.ts** — picks the engine from `SCRAPER_ENGINE`: `playwright` (production) drives a real headless Chromium; `curl` (default, local) shells out to `curl` with a full Chrome header set. Both get past the 402 bot block, then hit the AllReviews reviews API (`limit=50`)
 2. **jsonLdParser.ts** — recursive JSON-LD search (recipe objects sometimes hide inside `@graph`), entity decoding, ISO-8601 duration parsing
 3. **tweakEngine.ts** — fires one Gemini call per review in parallel, then runs `fixDiffs`:
    - drops diffs missing required fields
@@ -53,26 +53,28 @@ Recipe (1) ──▶ (many) Tweak
 ```cmd
 cd apps/backend
 copy .env.example .env
-:: fill in DATABASE_URL, DIRECT_URL, GEMINI_API_KEY
+:: fill in DATABASE_URL, GEMINI_API_KEY
 bun install
 bunx prisma generate
 bun run dev
 ```
 
-## 🖥️ Production Server (EC2)
+## 🖥️ Production Server
 
-- Ubuntu 24.04 on `t3.small`, Bun installed per-user
-- Process managed by **PM2** (`pm2 start "bun index.ts" --name plank-backend`)
-- nginx reverse-proxies 443 → 3000 with 300s read timeout for long scrapes
-- SSL via Let's Encrypt (auto-renewing)
-- Deploys are automated — see `.github/workflows/deploy-backend.yml`
+- Self-hosted Ubuntu server; the API listens on `127.0.0.1` only
+- Public traffic: Cloudflare Tunnel → nginx → app (TLS ends at Cloudflare; `trust proxy` is limited to loopback)
+- Runs as the systemd service **`allrecipes.service`** (restarts on failure and on boot)
+- Secrets live in a root-only env file on the server, loaded by the unit — never in the repo
+- `SCRAPER_ENGINE=playwright` with headless Chromium installed on the server
+- The DB connection is forced to IPv4 (`lib/prisma.ts`) because the server has no working IPv6
+- Deploys are automated and the server is never edited by hand — push to `main` and `.github/workflows/deploy-backend.yml` takes over (Tailscale → SSH → reset to `main` → install → migrate → restart → health checks)
 
-Handy PM2 commands:
+Handy commands on the server:
 
 ```bash
-pm2 status                 # process list
-pm2 logs plank-backend     # live logs
-pm2 restart plank-backend  # manual restart
+systemctl status allrecipes.service        # service state
+journalctl -u allrecipes.service -f        # live logs
+sudo systemctl restart allrecipes.service  # manual restart
 ```
 
 ## 📁 Structure
