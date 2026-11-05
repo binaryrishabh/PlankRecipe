@@ -7,45 +7,70 @@ on:
     paths:
       - 'apps/backend/**'
       - 'packages/shared/**'
+      - 'package.json'
+      - 'bun.lock'
+      - '.github/workflows/deploy-backend.yml'
+  workflow_dispatch:
+
+# never run two deploys against the server at the same time
+concurrency:
+  group: deploy-backend
+  cancel-in-progress: false
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
-      - name: Deploy to EC2
-        uses: appleboy/ssh-action@v1.0.3
+      # the home server is only reachable over Tailscale, so the runner joins
+      # the tailnet temporarily as tag:allrecipes-ci (ephemeral node)
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v3
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:allrecipes-ci
+
+      - name: Deploy to home server
+        uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
+          fingerprint: ${{ secrets.EC2_HOST_FINGERPRINT }}
+          command_timeout: 15m
+          script_stop: true
           script: |
-            # Export PATH so node/bun/pm2 can be found by child processes
-            export PATH=/home/ubuntu/.bun/bin:/home/ubuntu/.nvm/versions/node/v24.13.0/bin:$PATH
-            
-            cd /home/ubuntu/PlankRecipe
-            
-            # Force reset to match GitHub exactly
-            git fetch origin
+            set -euo pipefail
+            cd /home/ubuntu/allrecipes
+
+            # match GitHub main exactly — the server is never edited by hand
+            git fetch origin main
             git reset --hard origin/main
-            
-            # One-time migration from the old layout: carry the untracked .env over
-            if [ -f Backend/.env ] && [ ! -f apps/backend/.env ]; then
-              cp Backend/.env apps/backend/.env
-            fi
+            echo "Deploying $(git log --oneline -1)"
 
-            # Install all workspace dependencies from the repo root (single bun.lock)
-            /home/ubuntu/.bun/bin/bun install
+            # workspace install from the repo root (single bun.lock)
+            bun install --frozen-lockfile
 
+            # generate the Prisma client and apply pending migrations.
+            # secrets live in /etc/allrecipes/app.env (root, 600), so run the
+            # migration through systemd with that env file instead of reading it here
             cd apps/backend
+            bun x prisma generate
+            sudo systemd-run --quiet --pipe --wait --collect \
+              -p User=ubuntu \
+              -p EnvironmentFile=/etc/allrecipes/app.env \
+              -p WorkingDirectory=/home/ubuntu/allrecipes/apps/backend \
+              /usr/local/bin/bun x prisma migrate deploy
 
-            # Generate Prisma client
-            /home/ubuntu/.bun/bin/bunx prisma generate
+            sudo systemctl restart allrecipes.service
 
-            # Recreate the PM2 process so its working directory is apps/backend
-            /home/ubuntu/.nvm/versions/node/v24.13.0/bin/pm2 delete plank-backend || true
-            /home/ubuntu/.nvm/versions/node/v24.13.0/bin/pm2 start /home/ubuntu/.bun/bin/bun --name plank-backend --cwd /home/ubuntu/PlankRecipe/apps/backend -- index.ts
-            /home/ubuntu/.nvm/versions/node/v24.13.0/bin/pm2 save
-            
-            # Health check
-            sleep 3
-            curl -f http://localhost:3000/health || exit 1
+            # health checks: app up, then database reachable
+            for i in $(seq 1 15); do
+              if curl -fsS http://127.0.0.1:5710/health >/dev/null; then break; fi
+              sleep 2
+            done
+            curl -fsS http://127.0.0.1:5710/health
+            echo
+            curl -fsS -m 30 http://127.0.0.1:5710/health/db
+            echo
