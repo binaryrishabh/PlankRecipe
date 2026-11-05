@@ -1,6 +1,5 @@
 import { useState, type FormEvent } from 'react';
 import { useRecipeStore } from '@/store/recipeStore';
-import { UrlHintAnnotation } from './UrlHintAnnotation';
 
 export function UrlInputForm() {
   const [url, setUrl] = useState('');
@@ -13,27 +12,32 @@ export function UrlInputForm() {
   };
 
   return (
-    // relative wrapper so the hand drawn note can hang off the top left
-    <div className="relative w-full max-w-2xl">
-      <UrlHintAnnotation />
-      <form onSubmit={handleSubmit} className="w-full flex gap-3">
-        <input
-          type="url"
-          required
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          placeholder="https://www.allrecipes.com/recipe/..."
-          className="flex-1 rounded-lg border border-gray-300 px-4 py-3 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          disabled={loading}
-        />
-        <button
-          type="submit"
-          disabled={loading}
-          className="rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
-        >
-          {loading ? 'Analyzing...' : 'Analyze'}
-        </button>
-      </form>
-    </div>
+    <form
+      onSubmit={handleSubmit}
+      className="flex w-full max-w-2xl flex-col gap-2 rounded-2xl bg-cream-50 p-2 shadow-[0_12px_40px_-18px_rgba(28,25,23,0.35)] ring-1 ring-cream-300 focus-within:ring-2 focus-within:ring-ink-900 sm:flex-row"
+    >
+      <label htmlFor="recipe-url" className="sr-only">
+        Recipe link
+      </label>
+      <input
+        id="recipe-url"
+        type="url"
+        required
+        inputMode="url"
+        autoComplete="off"
+        value={url}
+        onChange={(e) => setUrl(e.target.value)}
+        placeholder="Paste a recipe link, e.g. allrecipes.com/recipe/…"
+        className="min-w-0 flex-1 rounded-xl bg-transparent px-4 py-3 text-base text-ink-900 placeholder-ink-500/70 focus:outline-none"
+        disabled={loading}
+      />
+      <button
+        type="submit"
+        disabled={loading}
+        className="rounded-xl bg-ink-900 px-6 py-3 font-semibold text-cream-50 transition-colors hover:bg-ink-700 disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        {loading ? 'Reading reviews…' : 'Show the tweaks'}
+      </button>
+    </form>
   );
 }

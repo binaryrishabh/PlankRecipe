@@ -23,19 +23,19 @@ export function RecentRecipes() {
 
   return (
     <div className="w-full max-w-3xl">
-      <p className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2 px-1">
+      <p className="text-xs font-semibold uppercase tracking-wide text-ink-500 mb-2 px-1">
         Recently analyzed — click to revisit instantly
       </p>
       <div className="flex flex-wrap gap-2">
         {visible.map((item) => (
           <div
             key={item.recipe.id}
-            className="flex items-stretch rounded-full border border-gray-200 bg-white shadow-sm overflow-hidden"
+            className="flex items-stretch rounded-full border border-cream-300 bg-cream-50 shadow-sm overflow-hidden"
           >
             <button
               onClick={() => loadBundle(item.recipe.url)}
               disabled={loading}
-              className="px-4 py-1.5 text-sm text-gray-700 hover:bg-gray-50 truncate max-w-55 text-left disabled:opacity-60"
+              className="px-4 py-1.5 text-sm text-ink-700 hover:bg-white truncate max-w-55 text-left disabled:opacity-60"
               title={item.recipe.url}
             >
               {item.recipe.title}
@@ -43,8 +43,8 @@ export function RecentRecipes() {
             <button
               onClick={() => loadBundle(item.recipe.url, { refresh: true })}
               disabled={loading}
-              className="px-2.5 py-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 border-l border-gray-100 disabled:opacity-60"
-              title="Re-scrape from AllRecipes for fresh tweaks"
+              className="px-2.5 py-1.5 text-ink-500 hover:text-ink-900 hover:bg-white border-l border-cream-300 disabled:opacity-60"
+              title="Re-read the reviews for fresh tweaks"
             >
               <svg
                 viewBox="0 0 24 24"
@@ -65,7 +65,7 @@ export function RecentRecipes() {
       {hasHidden && (
         <button
           onClick={() => setShowAll((s) => !s)}
-          className="mt-2 text-xs font-medium text-blue-600 hover:underline px-1"
+          className="mt-2 text-xs font-medium text-ink-700 underline-offset-2 hover:underline px-1"
         >
           {showAll ? 'Show less' : `Show all ${history.length}`}
         </button>

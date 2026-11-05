@@ -38,7 +38,7 @@ export function TweakSwitcher({
           >
             Tweak #{i + 1}
             {tweak.author ? (
-              <span className={active ? 'text-blue-100' : 'text-gray-400'}> · {tweak.author}</span>
+              <span className={active ? 'text-cream-300' : 'text-ink-500'}> · {tweak.author}</span>
             ) : null}
           </button>
         );
@@ -51,7 +51,7 @@ function tabClass(active: boolean): string {
   return [
     'px-4 py-2 rounded-full text-sm font-medium border transition-colors cursor-pointer',
     active
-      ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
-      : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400',
+      ? 'bg-ink-900 text-cream-50 border-ink-900 shadow-sm'
+      : 'bg-cream-50 text-ink-700 border-cream-300 hover:bg-white hover:border-ink-500',
   ].join(' ');
 }

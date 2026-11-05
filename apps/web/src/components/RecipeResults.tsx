@@ -48,14 +48,14 @@ export function RecipeResults() {
       </div>
 
       {/* tweaks summary */}
-      <div className="bg-blue-50 border border-blue-100 p-5 rounded-xl mb-6">
-        <h3 className="font-bold text-blue-900 text-lg mb-1 flex items-center gap-2">
-          <span>🎉</span> Found {tweaks.length} Featured Tweak
-          {tweaks.length === 1 ? '' : 's'}!
+      <div className="bg-ink-900 text-cream-100 p-5 rounded-2xl mb-6">
+        <h3 className="font-display font-semibold text-cream-50 text-xl mb-1 flex items-center gap-2">
+          Found {tweaks.length} cook&rsquo;s tweak
+          {tweaks.length === 1 ? '' : 's'}
         </h3>
-        <p className="text-blue-800 text-sm">
+        <p className="text-cream-300 text-sm">
           {hasTweaks
-            ? 'Pick a tweak below to see how that reviewer changed the recipe. The differences light up like a code diff.'
+            ? 'Pick a tweak below to see how that reviewer changed the recipe. Every change is highlighted against the original.'
             : 'No community tweaks were found for this one, so here is the original recipe.'}
         </p>
       </div>

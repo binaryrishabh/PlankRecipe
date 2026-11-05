@@ -1,0 +1,31 @@
+{
+  "name": "Cook's Diff",
+  "tagline": "See exactly how real cooks changed the recipe.",
+  "description": "Cook's Diff reads every review on a recipe and turns the changes home cooks actually made into a clear, color-coded diff: what they added, removed and swapped. Paste a recipe link and compare the original with each community tweak.",
+  "faq": [
+    {
+      "q": "How do I see what people changed in a recipe?",
+      "a": "Paste the recipe's link into Cook's Diff. It reads the reviews, pulls out every concrete change cooks made (less sugar, extra garlic, a different pan) and shows each one as a tweak you can switch to, highlighted line by line against the original recipe."
+    },
+    {
+      "q": "What do the colors mean?",
+      "a": "Green lines were added by the cook, red lines were removed, yellow lines were changed, and blue notes are general tips that don't map to a single line."
+    },
+    {
+      "q": "Which recipe sites does it work with?",
+      "a": "Allrecipes recipe pages work today, including their featured tweaks. Support for more recipe sites that publish reviews is being added."
+    },
+    {
+      "q": "Is Cook's Diff free? Do I need an account?",
+      "a": "It's free and there's no account or sign-up. Paste a link and cook."
+    },
+    {
+      "q": "Is Cook's Diff affiliated with Allrecipes?",
+      "a": "No. Cook's Diff is an independent tool. It links back to the original recipe so you can always read it at the source."
+    },
+    {
+      "q": "How accurate are the tweaks?",
+      "a": "An AI model reads each review and extracts the changes, then every change is checked against the real recipe lines. Changes that don't match a real line are dropped, and reviews without a concrete change show up as notes."
+    }
+  ]
+}

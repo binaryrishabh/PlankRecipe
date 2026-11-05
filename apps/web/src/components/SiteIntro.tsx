@@ -1,63 +1,58 @@
 import { useRecipeStore } from '@/store/recipeStore';
 
-// the friendly "what is this place" block that fills the empty homepage.
-// it shows up for anyone who hasnt interacted yet, and gets out of the way
-// the moment they analyze a link or open a saved recipe — the store flips
-// explainerDismissed inside loadBundle, which both actions go through
+const steps = [
+  {
+    n: '01',
+    title: 'Paste a recipe link',
+    body: 'The full recipe comes through — ingredients, steps, times and servings — even from pages that fight back.',
+  },
+  {
+    n: '02',
+    title: 'We read every review',
+    body: 'An AI goes through all the reviews and pulls out exactly what each cook changed, added or skipped. No digging through fifty comments.',
+  },
+  {
+    n: '03',
+    title: 'Flip between versions',
+    body: 'Each cook’s version becomes a tab. Switch to it and see the changes highlighted, line by line, on top of the original.',
+  },
+];
+
+// "how it works" block for first-time visitors. it steps aside the moment they
+// analyze a link or open a saved recipe (the store flips explainerDismissed in
+// loadBundle, which both actions go through)
 export function SiteIntro() {
   const { explainerDismissed } = useRecipeStore();
   if (explainerDismissed) return null;
 
   return (
-    <section className="w-full max-w-3xl">
-      <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 md:p-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">So, what is this place?</h2>
-        <p className="text-gray-600 leading-relaxed mb-6">
-          Scroll to the bottom of any AllRecipes page and you'll find the good stuff:{' '}
-          <span className="font-semibold text-gray-800">Featured Tweaks</span> — where home cooks
-          confess how they actually make the recipe. Less sugar, double the garlic, skip the
-          broiler. This site reads all of those reviews for you and turns every real modification
-          into a clean, color coded diff on top of the original recipe.
-        </p>
+    <section aria-labelledby="how-title" className="w-full max-w-5xl">
+      <h2 id="how-title" className="font-display text-3xl font-semibold tracking-tight text-ink-900 mb-2">
+        Reviews are where the real recipe lives
+      </h2>
+      <p className="max-w-2xl text-ink-600 leading-relaxed mb-8">
+        Scroll past any popular recipe and you&rsquo;ll find hundreds of cooks confessing how they
+        <em> actually</em> make it. Less sugar, double the garlic, skip the broiler. Cook&rsquo;s Diff
+        reads all of it and turns every real change into a clean, color-coded diff.
+      </p>
 
-        <div className="grid gap-4 md:grid-cols-3 mb-6">
-          <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
-            <p className="font-semibold text-gray-800 text-sm mb-1">Paste any AllRecipes link</p>
-            <p className="text-xs text-gray-600 leading-relaxed">
-              The full recipe gets fetched — ingredients, steps, prep and cook times, servings —
-              even for pages that fight back.
-            </p>
-          </div>
-          <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
-            <p className="font-semibold text-gray-800 text-sm mb-1">Every tweak becomes a tab</p>
-            <p className="text-xs text-gray-600 leading-relaxed">
-              An AI reads all the featured reviews and pulls out exactly what each cook changed,
-              added or skipped — no digging through fifty comments.
-            </p>
-          </div>
-          <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
-            <p className="font-semibold text-gray-800 text-sm mb-1">Diffs you can read at a glance</p>
-            <p className="text-xs text-gray-600 leading-relaxed">
-              Added lines glow green, removed ones get struck in red, changes shine yellow, and
-              general tips float up as blue notes.
-            </p>
-          </div>
-        </div>
+      <ol className="grid gap-4 md:grid-cols-3">
+        {steps.map((s) => (
+          <li key={s.n} className="rounded-2xl border border-cream-300 bg-cream-50 p-6">
+            <span className="font-display text-sm font-semibold text-saffron-600">{s.n}</span>
+            <h3 className="mt-2 text-lg font-semibold text-ink-900">{s.title}</h3>
+            <p className="mt-2 text-sm leading-relaxed text-ink-600">{s.body}</p>
+          </li>
+        ))}
+      </ol>
 
-        <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 md:p-5">
-          <p className="font-semibold text-blue-900 text-sm mb-2">What you get out of it</p>
-          <ul className="text-sm text-blue-800 space-y-1.5 list-disc pl-5">
-            <li>One click to flip between the original recipe and any community tweak</li>
-            <li>GitHub-PR style highlights, so you see exactly what to do differently</li>
-            <li>Everything you analyze is saved — revisit it instantly from the recent list up top</li>
-            <li>A re-scrape button on each saved recipe for when new tweaks show up</li>
-            <li>No account, no paywall. Paste a link and cook</li>
-          </ul>
-        </div>
-
-        <p className="mt-5 text-xs text-gray-400 italic">
-          Made for home cooks who read the reviews before they preheat the oven.
-        </p>
+      <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 rounded-2xl bg-ink-900 px-6 py-4 text-sm text-cream-100">
+        <span className="font-semibold">Reading the colors:</span>
+        <span className="flex items-center gap-2"><i className="h-3 w-3 rounded-sm bg-green-500" /> added</span>
+        <span className="flex items-center gap-2"><i className="h-3 w-3 rounded-sm bg-red-500" /> removed</span>
+        <span className="flex items-center gap-2"><i className="h-3 w-3 rounded-sm bg-yellow-400" /> changed</span>
+        <span className="flex items-center gap-2"><i className="h-3 w-3 rounded-sm bg-blue-400" /> cook&rsquo;s note</span>
+        <span className="ml-auto text-cream-300">Free · no account · nothing to install</span>
       </div>
     </section>
   );

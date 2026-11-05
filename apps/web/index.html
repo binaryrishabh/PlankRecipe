@@ -2,15 +2,36 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cook's Diff — See how real cooks changed the recipe</title>
+    <meta name="description" content="__SITE_DESCRIPTION__" />
+    <link rel="canonical" href="__SITE_URL__/" />
+    <meta name="theme-color" content="#FBF7F0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- social sharing -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Cook's Diff" />
+    <meta property="og:title" content="Cook's Diff — See how real cooks changed the recipe" />
+    <meta property="og:description" content="__SITE_DESCRIPTION__" />
+    <meta property="og:url" content="__SITE_URL__/" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Cook's Diff — See how real cooks changed the recipe" />
+    <meta name="twitter:description" content="__SITE_DESCRIPTION__" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&display=swap" rel="stylesheet" />
-    <link rel="icon" type="image/svg+xml" href="/tweak.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Allrecipes Tweaks</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500..700;1,9..144,500..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+    <!-- structured data for search and answer engines (filled at build time) -->
+    <script type="application/ld+json">__SITE_JSONLD__</script>
   </head>
-  <body>
+  <body class="bg-cream-100">
     <div id="root"></div>
+    <noscript>
+      <h1>Cook's Diff</h1>
+      <p>__SITE_DESCRIPTION__</p>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
