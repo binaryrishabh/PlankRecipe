@@ -9,6 +9,7 @@ import { SiteShell } from '@/components/layout/SiteShell';
 import { HeroDiffCard } from '@/components/landing/HeroDiffCard';
 import { Faq } from '@/components/landing/Faq';
 import { RecipePageView } from '@/pages/RecipePageView';
+import { PrivacyPage } from '@/pages/PrivacyPage';
 import { Analytics } from '@vercel/analytics/react';
 
 function LoadingState() {
@@ -84,6 +85,7 @@ function HomePage() {
 function Routes() {
   const match = /^\/r\/([^/]+)\/?$/.exec(window.location.pathname);
   if (match?.[1]) return <RecipePageView slug={decodeURIComponent(match[1])} />;
+  if (/^\/privacy\/?$/.test(window.location.pathname)) return <PrivacyPage />;
   return <HomePage />;
 }
 

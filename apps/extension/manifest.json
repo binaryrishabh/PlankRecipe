@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "Cook's Diff — see how cooks changed the recipe",
+  "short_name": "Cook's Diff",
+  "version": "1.0.0",
+  "description": "On recipe pages, see what home cooks actually changed — read from the reviews and shown as a clear diff.",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.allrecipes.com/recipe/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "host_permissions": ["https://allrecipes-backend.lapwork.in/*"]
+}

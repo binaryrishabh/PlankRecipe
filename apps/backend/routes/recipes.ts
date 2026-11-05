@@ -4,8 +4,15 @@ import { scrapeRecipe } from "../services/scraper";
 import { prisma } from "../lib/prisma";
 import { toRecipeBundle } from "../utils/mappers";
 import { config } from "../utils/config";
+import { createLimiter } from "../utils/rateLimit";
 
 const router = Router();
+
+// caps fresh (uncached) analyses per visitor; cached recipes are free and unlimited
+const freshAnalysisLimiter = createLimiter({
+  windowMs: config.FRESH_ANALYSIS_WINDOW_MS,
+  max: config.FRESH_ANALYSIS_MAX
+});
 
 class ScrapeDeadlineError extends Error {}
 
@@ -55,6 +62,17 @@ router.post("/", async (req, res) => {
         res.status(200).json(toRecipeBundle(existing));
         return;
       }
+    }
+
+    // fresh analyses are the expensive part, so only they count against the limit
+    const allowed = freshAnalysisLimiter.take(req.ip || "unknown");
+    if (!allowed.ok) {
+      res.set("Retry-After", String(allowed.retryAfterSec));
+      res.status(429).json({
+        success: false,
+        message: `You've analyzed a lot of new recipes in a short time. Please try again in ${Math.ceil(allowed.retryAfterSec / 60)} minutes.`
+      });
+      return;
     }
 
     // scrape the page and build the bundle, hopefully it doesnt crash

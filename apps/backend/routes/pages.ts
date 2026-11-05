@@ -126,6 +126,41 @@ router.get("/", async (_req, res) => {
   }
 });
 
+// GET /api/pages/by-url?url=... — has this recipe been analyzed already?
+// Only reads our own database (never scrapes), so the browser extension can
+// show a tweak count on page load without any automated fetching.
+// Must stay above "/:slug" or Express would treat "by-url" as a slug.
+router.get("/by-url", async (req, res) => {
+  const raw = typeof req.query.url === "string" ? req.query.url : "";
+  let candidates: string[];
+  try {
+    const u = new URL(raw);
+    const base = `${u.origin}${u.pathname}`.replace(/\/+$/, "");
+    candidates = [base, `${base}/`];
+  } catch {
+    res.status(400).json({ success: false, message: "Invalid url" });
+    return;
+  }
+
+  try {
+    const row = await prisma.recipe.findFirst({
+      where: { url: { in: candidates } },
+      include: { tweaks: { orderBy: { sortOrder: "asc" } } },
+    });
+
+    if (!row || row.tweaks.length === 0) {
+      res.status(404).json({ success: false, message: "Not analyzed yet" });
+      return;
+    }
+
+    res.set("Cache-Control", "public, max-age=120");
+    res.json(buildRecipePage(toRecipeBundle(row)));
+  } catch (error: any) {
+    console.error("[pages] by-url lookup failed:", error);
+    res.status(500).json({ success: false, message: "Could not look up recipe" });
+  }
+});
+
 // GET /api/pages/:slug — the public summary for one recipe
 router.get("/:slug", async (req, res) => {
   const prefix = idPrefixFromSlug(req.params.slug);

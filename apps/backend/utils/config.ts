@@ -14,5 +14,9 @@ export const config = {
   // before that. Past this deadline we return a clean 504 JSON error instead.
   SCRAPE_DEADLINE_MS: Number(process.env.SCRAPE_DEADLINE_MS) || 85_000,
   // one slow Gemini call shouldn't hold up the whole recipe; it becomes a plain note
-  GEMINI_TIMEOUT_MS: Number(process.env.GEMINI_TIMEOUT_MS) || 30_000
+  GEMINI_TIMEOUT_MS: Number(process.env.GEMINI_TIMEOUT_MS) || 30_000,
+
+  // per-visitor cap on fresh (uncached) analyses, to protect the Gemini bill
+  FRESH_ANALYSIS_MAX: Number(process.env.FRESH_ANALYSIS_MAX) || 15,
+  FRESH_ANALYSIS_WINDOW_MS: Number(process.env.FRESH_ANALYSIS_WINDOW_MS) || 60 * 60 * 1000
 }

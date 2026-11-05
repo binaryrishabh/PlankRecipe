@@ -20,10 +20,15 @@ export function SiteShell({ children }: { children: ReactNode }) {
       <footer className="border-t border-cream-300 bg-cream-200/60">
         <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-8 text-sm text-ink-500 sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <Logo />
-          <p className="max-w-md sm:text-right">
-            An independent tool. Not affiliated with any recipe site &mdash; every recipe links back to
-            its original source.
-          </p>
+          <div className="flex flex-col gap-1 sm:items-end">
+            <p className="max-w-md sm:text-right">
+              An independent tool. Not affiliated with any recipe site &mdash; every recipe links back to
+              its original source.
+            </p>
+            <a href="/privacy" className="underline-offset-2 hover:text-ink-900 hover:underline">
+              Privacy policy
+            </a>
+          </div>
         </div>
       </footer>
     </div>
