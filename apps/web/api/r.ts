@@ -139,7 +139,11 @@ function withHead(shell: string, p: RecipePage | null, site: string, slug: strin
     `<script>window.__RECIPE_PAGE__=${scriptJson(p)};</script>`;
   html = html.replace("</head>", `${extraHead}</head>`);
 
-  if (p) html = html.replace('<div id="root"></div>', `<div id="root">${renderBody(p)}</div>`);
+  if (p) {
+    html = html.replace('<div id="root"></div>', `<div id="root">${renderBody(p)}</div>`);
+    // the home page's no-JS fallback would add a second, generic <h1>
+    html = html.replace(/<noscript>[\s\S]*?<\/noscript>/, "");
+  }
   return html;
 }
 
