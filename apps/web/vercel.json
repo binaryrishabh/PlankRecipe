@@ -3,6 +3,9 @@
   "rewrites": [
     { "source": "/r/:slug", "destination": "/api/r?slug=:slug" },
     { "source": "/sitemap.xml", "destination": "/api/sitemap" },
-    { "source": "/privacy", "destination": "/index.html" }
+    { "source": "/recipes", "destination": "/api/page?p=recipes" },
+    { "source": "/extension", "destination": "/api/page?p=extension" },
+    { "source": "/kitchen", "destination": "/api/page?p=kitchen" },
+    { "source": "/privacy", "destination": "/api/page?p=privacy" }
   ]
 }

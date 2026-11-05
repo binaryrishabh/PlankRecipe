@@ -6,6 +6,7 @@ import type { RecipeBundle } from "@shared/interface/RecipeBundle.interface";
 import type {
   RecipePage,
   RecipePageListItem,
+  RecipeCard,
   IngredientChangeStat,
   AddedIngredientStat,
 } from "@shared/interface/RecipePage.interface";
@@ -122,6 +123,46 @@ router.get("/", async (_req, res) => {
     res.json(items);
   } catch (error: any) {
     console.error("[pages] list failed:", error);
+    res.status(500).json({ success: false, message: "Could not list recipes" });
+  }
+});
+
+// GET /api/pages/cards?limit=12 — newest analyzed recipes with a one-line teaser,
+// for the recipe grids on the home and /recipes pages
+router.get("/cards", async (req, res) => {
+  const limit = Math.min(Math.max(Number(req.query.limit) || 12, 1), 200);
+  try {
+    const rows = await prisma.recipe.findMany({
+      where: { tweaks: { some: {} } },
+      include: { tweaks: { orderBy: { sortOrder: "asc" } } },
+      orderBy: { createdAt: "desc" },
+      take: limit,
+    });
+
+    const cards: RecipeCard[] = rows.map((row) => {
+      const p = buildRecipePage(toRecipeBundle(row));
+      const top = p.mostChangedIngredients[0];
+      const add = p.commonAdditions[0];
+      return {
+        slug: p.slug,
+        title: p.title,
+        sourceHost: p.sourceHost,
+        tweakCount: p.tweakCount,
+        cooksWithChanges: p.cooksWithChanges,
+        changeCount: p.totals.changed + p.totals.added + p.totals.removed,
+        teaser: top
+          ? `${top.changed + top.removed} cooks changed “${top.line}”`
+          : add
+            ? `Cooks add “${add.line}”`
+            : null,
+        analyzedAt: p.analyzedAt,
+      };
+    });
+
+    res.set("Cache-Control", "public, max-age=300");
+    res.json(cards);
+  } catch (error: any) {
+    console.error("[pages] cards failed:", error);
     res.status(500).json({ success: false, message: "Could not list recipes" });
   }
 });

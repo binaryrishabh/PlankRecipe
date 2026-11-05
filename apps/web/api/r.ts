@@ -101,6 +101,12 @@ function withHead(shell: string, p: RecipePage | null, site: string, slug: strin
   html = setTag(html, /<meta property="og:url" content="[^"]*" \/>/, `<meta property="og:url" content="${esc(url)}" />`);
   html = setTag(html, /<meta name="twitter:title" content="[^"]*" \/>/, `<meta name="twitter:title" content="${esc(title)}" />`);
   html = setTag(html, /<meta name="twitter:description" content="[^"]*" \/>/, `<meta name="twitter:description" content="${esc(description)}" />`);
+  if (p) {
+    // this recipe's own preview card (api/og.ts) instead of the site card
+    const image = `${site}/api/og?slug=${encodeURIComponent(p.slug)}`;
+    html = setTag(html, /<meta property="og:image" content="[^"]*" \/>/, `<meta property="og:image" content="${esc(image)}" />`);
+    html = setTag(html, /<meta name="twitter:image" content="[^"]*" \/>/, `<meta name="twitter:image" content="${esc(image)}" />`);
+  }
 
   const jsonLd = p
     ? {

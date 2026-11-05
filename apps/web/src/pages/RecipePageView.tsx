@@ -6,6 +6,7 @@ import { SiteShell } from '@/components/layout/SiteShell';
 import { RecipeResults } from '@/components/RecipeResults';
 import { ErrorDisplay } from '@/components/ErrorDisplay';
 import { UrlInputForm } from '@/components/UrlInputForm';
+import { SaveButton } from '@/components/kitchen/SaveButton';
 
 const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
 
@@ -105,6 +106,7 @@ function Summary({ p }: { p: RecipePage }) {
             >
               Original recipe on {p.sourceHost}
             </a>
+            <SaveButton slug={p.slug} title={p.title} tweakCount={p.tweakCount} />
           </div>
         </div>
       </section>
@@ -200,7 +202,7 @@ function Summary({ p }: { p: RecipePage }) {
         <section className="rounded-3xl bg-ink-900 p-8 text-cream-100">
           <h2 className="font-display text-2xl font-semibold text-cream-50">Got another recipe?</h2>
           <p className="mt-2 mb-5 text-cream-300">Paste its link and see how cooks changed it.</p>
-          <UrlInputForm />
+          <UrlInputForm handOff />
         </section>
       </div>
     </>
@@ -233,7 +235,7 @@ export function RecipePageView({ slug }: { slug: string }) {
         <section className="mx-auto flex max-w-2xl flex-col items-start px-4 py-20 sm:px-6">
           <h1 className="font-display text-4xl font-semibold text-ink-900">We haven&rsquo;t read this one yet</h1>
           <p className="mt-3 mb-8 text-ink-600">Paste the recipe&rsquo;s link and we&rsquo;ll go through every review.</p>
-          <UrlInputForm />
+          <UrlInputForm handOff />
         </section>
       )}
       {page && <Summary p={page} />}

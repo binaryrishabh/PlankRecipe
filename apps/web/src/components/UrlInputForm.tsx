@@ -1,14 +1,21 @@
 import { useState, type FormEvent } from 'react';
 import { useRecipeStore } from '@/store/recipeStore';
 
-export function UrlInputForm() {
+// handOff: on pages that don't show results themselves (browse, kitchen, …),
+// send the link to the home page (/?url=…), which analyzes it on arrival
+export function UrlInputForm({ handOff = false }: { handOff?: boolean }) {
   const [url, setUrl] = useState('');
   const { loadBundle, loading } = useRecipeStore();
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (!url.trim()) return;
-    loadBundle(url.trim());
+    const value = url.trim();
+    if (!value) return;
+    if (handOff) {
+      window.location.assign(`/?url=${encodeURIComponent(value)}`);
+      return;
+    }
+    loadBundle(value);
   };
 
   return (

@@ -39,6 +39,18 @@ export interface RecipePage {
   tweaks: RecipePageTweak[];
 }
 
+// one tile in the recipe grids (home page, /recipes)
+export interface RecipeCard {
+  slug: string;
+  title: string;
+  sourceHost: string;
+  tweakCount: number;
+  cooksWithChanges: number;
+  changeCount: number;
+  teaser: string | null; // e.g. 6 cooks changed "1 cup packed brown sugar"
+  analyzedAt: string;
+}
+
 export interface RecipePageListItem {
   slug: string;
   title: string;

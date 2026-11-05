@@ -4,6 +4,8 @@ import { TweakSwitcher } from '@/components/tweaks/TweakSwitcher';
 import { RecipeView } from '@/components/recipe/RecipeView';
 import { DiffLegend } from '@/components/recipe/DiffLegend';
 import { SourceLink } from '@/components/recipe/SourceLink';
+import { SaveButton } from '@/components/kitchen/SaveButton';
+import { recipeSlug } from '@shared/utils/slug';
 
 function ShareButton({ url }: { url: string }) {
   const [copied, setCopied] = useState(false);
@@ -80,6 +82,15 @@ export function RecipeResults() {
           )}
           <div className="flex flex-wrap items-center gap-3">
             {shareUrl && <ShareButton url={shareUrl} />}
+            {shareUrl && (
+              <div className="mt-4">
+                <SaveButton
+                  slug={recipeSlug(bundle.recipe.title, bundle.recipe.id)}
+                  title={bundle.recipe.title}
+                  tweakCount={tweaks.length}
+                />
+              </div>
+            )}
             <SourceLink url={bundle.recipe.url} />
           </div>
         </div>

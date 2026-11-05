@@ -23,6 +23,9 @@ export async function GET(request: Request): Promise<Response> {
   const today = new Date().toISOString().slice(0, 10);
   const urls = [
     `  <url><loc>${site}/</loc><lastmod>${today}</lastmod><changefreq>daily</changefreq><priority>1.0</priority></url>`,
+    `  <url><loc>${site}/recipes</loc><lastmod>${today}</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>`,
+    `  <url><loc>${site}/extension</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>`,
+    `  <url><loc>${site}/privacy</loc><changefreq>yearly</changefreq><priority>0.2</priority></url>`,
     ...items.map(
       (i) =>
         `  <url><loc>${site}/r/${esc(i.slug)}</loc><lastmod>${i.updatedAt.slice(0, 10)}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>`,

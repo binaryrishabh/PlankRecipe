@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { UrlInputForm } from '@/components/UrlInputForm';
 import { ErrorDisplay } from '@/components/ErrorDisplay';
 import { RecipeResults } from '@/components/RecipeResults';
@@ -10,6 +11,10 @@ import { HeroDiffCard } from '@/components/landing/HeroDiffCard';
 import { Faq } from '@/components/landing/Faq';
 import { RecipePageView } from '@/pages/RecipePageView';
 import { PrivacyPage } from '@/pages/PrivacyPage';
+import { RecipesPage } from '@/pages/RecipesPage';
+import { KitchenPage } from '@/pages/KitchenPage';
+import { ExtensionPage } from '@/pages/ExtensionPage';
+import { FreshRecipes } from '@/components/recipes/FreshRecipes';
 import { Analytics } from '@vercel/analytics/react';
 
 function LoadingState() {
@@ -23,7 +28,14 @@ function LoadingState() {
 }
 
 function HomePage() {
-  const { loading, explainerDismissed } = useRecipeStore();
+  const { loading, explainerDismissed, loadBundle } = useRecipeStore();
+
+  // /?url=<recipe link>: other pages hand links off here, and it doubles as a
+  // shareable "analyze this recipe" link. Runs once on arrival.
+  useEffect(() => {
+    const url = new URLSearchParams(window.location.search).get('url');
+    if (url && /^https?:\/\//i.test(url)) void loadBundle(url);
+  }, [loadBundle]);
 
   return (
     <SiteShell>
@@ -74,6 +86,7 @@ function HomePage() {
         <ErrorDisplay />
         {loading && <LoadingState />}
         <RecipeResults />
+        <FreshRecipes />
         <SiteIntro />
         <Faq />
       </div>
@@ -81,11 +94,16 @@ function HomePage() {
   );
 }
 
-// tiny path switch: "/" is the tool, "/r/<slug>" is a recipe's public page
+// tiny path switch: "/" is the tool, "/r/<slug>" a recipe's public page, plus a
+// few static pages. Each extra path also needs a rewrite in vercel.json.
 function Routes() {
-  const match = /^\/r\/([^/]+)\/?$/.exec(window.location.pathname);
+  const path = window.location.pathname.replace(/\/+$/, '') || '/';
+  const match = /^\/r\/([^/]+)$/.exec(path);
   if (match?.[1]) return <RecipePageView slug={decodeURIComponent(match[1])} />;
-  if (/^\/privacy\/?$/.test(window.location.pathname)) return <PrivacyPage />;
+  if (path === '/recipes') return <RecipesPage />;
+  if (path === '/kitchen') return <KitchenPage />;
+  if (path === '/extension') return <ExtensionPage />;
+  if (path === '/privacy') return <PrivacyPage />;
   return <HomePage />;
 }
 
