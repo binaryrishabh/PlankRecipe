@@ -11,14 +11,14 @@ const toneMap: Record<RowStatus, string> = {
   added: 'bg-green-50 border-green-200',
   removed: 'bg-red-50 border-red-200',
   changed: 'bg-yellow-50 border-yellow-200',
-  unchanged: 'bg-white border-gray-100',
+  unchanged: 'bg-white/70 border-cream-200',
 };
 
 // one single line of the recipe, tinted by how it was changed
 export function DiffRow({ row, marker }: DiffRowProps) {
   return (
     <li className={`flex items-start gap-3 px-3 py-2 rounded-md border ${toneMap[row.status]}`}>
-      <span className="w-6 shrink-0 text-right text-sm text-gray-400 select-none mt-0.5">
+      <span className="w-6 shrink-0 text-right text-sm text-ink-500/70 select-none mt-0.5">
         {marker}
       </span>
       <div className="flex-1 text-sm leading-relaxed">{renderContent(row)}</div>
@@ -52,7 +52,7 @@ function renderContent(row: DisplayRow) {
         <span>
           {wordDiff.map((part, idx) => {
             if (part.type === 'same') {
-              return <span key={idx} className="text-gray-800">{part.text}</span>;
+              return <span key={idx} className="text-ink-800">{part.text}</span>;
             }
             if (part.type === 'removed') {
               return (
@@ -74,6 +74,6 @@ function renderContent(row: DisplayRow) {
       );
 
     default:
-      return <span className="text-gray-800">{row.text}</span>;
+      return <span className="text-ink-800">{row.text}</span>;
   }
 }

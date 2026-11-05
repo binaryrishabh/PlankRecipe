@@ -10,7 +10,7 @@ interface DiffListProps {
 
 export function DiffList({ rows, ordered, emptyText }: DiffListProps) {
   if (rows.length === 0) {
-    return <p className="text-sm text-gray-400 italic px-1 py-2">{emptyText}</p>;
+    return <p className="text-sm text-ink-500 italic px-1 py-2">{emptyText}</p>;
   }
 
   // we number only the steps that actually survive, removed ones dont eat a number

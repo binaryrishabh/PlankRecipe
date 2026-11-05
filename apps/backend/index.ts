@@ -3,6 +3,7 @@ import cors from "cors";
 import { prisma } from "./lib/prisma";
 import { config } from "./utils/config";
 import recipesRouter from "./routes/recipes";
+import pagesRouter from "./routes/pages";
 
 const app = express();
 
@@ -52,6 +53,8 @@ app.get("/health/db", async (req, res) => {
 
 // all the recipe endpoints live under /api/recipes
 app.use("/api/recipes", recipesRouter);
+// public summaries behind the shareable /r/<slug> pages and the sitemap
+app.use("/api/pages", pagesRouter);
 
 app.listen(config.PORT, config.HOST, () => {
   console.log(`[backend] listening on http://${config.HOST}:${config.PORT}`);

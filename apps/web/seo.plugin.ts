@@ -58,8 +58,6 @@ export function seoPlugin(): Plugin {
     ],
   };
 
-  const today = new Date().toISOString().slice(0, 10);
-
   return {
     name: "cooks-diff-seo",
     transformIndexHtml(html) {
@@ -75,22 +73,15 @@ export function seoPlugin(): Plugin {
         fileName: "robots.txt",
         source: `User-agent: *\nAllow: /\n\nSitemap: ${siteUrl}/sitemap.xml\n`,
       });
-      this.emitFile({
-        type: "asset",
-        fileName: "sitemap.xml",
-        source:
-          `<?xml version="1.0" encoding="UTF-8"?>\n` +
-          `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
-          `  <url><loc>${siteUrl}/</loc><lastmod>${today}</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>\n` +
-          `</urlset>\n`,
-      });
+      // sitemap.xml is served live by api/sitemap.ts so every analyzed recipe is listed
       this.emitFile({
         type: "asset",
         fileName: "llms.txt",
         source:
           `# ${site.name}\n\n> ${site.tagline}\n\n${site.description}\n\n` +
           `## How to use\n\n- Open ${siteUrl}/ and paste a recipe link.\n` +
-          `- Switch between the original recipe and each community tweak; changes are highlighted line by line.\n\n` +
+          `- Switch between the original recipe and each community tweak; changes are highlighted line by line.\n` +
+          `- Every analyzed recipe has a public summary at ${siteUrl}/r/<recipe-slug> with the most-changed ingredients and each cook's changes. All of them are listed in ${siteUrl}/sitemap.xml.\n\n` +
           `## FAQ\n\n` +
           site.faq.map((f) => `### ${f.q}\n\n${f.a}\n`).join("\n"),
       });

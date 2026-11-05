@@ -51,12 +51,12 @@ export function RecipeView({ recipe, tweak }: RecipeViewProps) {
       )}
 
       <section>
-        <h3 className="text-lg font-bold text-gray-900 mb-3">Ingredients</h3>
+        <h3 className="font-display text-2xl font-semibold text-ink-900 mb-3">Ingredients</h3>
         <DiffList rows={ingredientsModel.rows} ordered={false} emptyText="No ingredients found." />
       </section>
 
       <section>
-        <h3 className="text-lg font-bold text-gray-900 mb-3">Steps</h3>
+        <h3 className="font-display text-2xl font-semibold text-ink-900 mb-3">Steps</h3>
         <DiffList rows={stepsModel.rows} ordered={true} emptyText="No steps found." />
       </section>
     </div>

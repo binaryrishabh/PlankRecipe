@@ -1,8 +1,8 @@
 // tiny color key so nobody has to guess what the highlighting means
 export function DiffLegend() {
   return (
-    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-gray-600 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5">
-      <span className="font-semibold text-gray-700">Legend:</span>
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-ink-600 bg-white/70 border border-cream-300 rounded-xl px-4 py-2.5">
+      <span className="font-semibold text-ink-700">Legend:</span>
       <span className="flex items-center gap-1.5">
         <span className="inline-block w-3 h-3 rounded-sm bg-green-200 border border-green-400" />
         added

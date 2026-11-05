@@ -3,6 +3,7 @@ import type { RecipeBundle } from '@shared/interface/RecipeBundle.interface';
 import type { Recipe } from '@shared/interface/Recipe.interface';
 import type { Tweak } from '@shared/interface/Tweak.interface';
 import { fetchRecipeBundle, fetchHistory } from '@/api/recipes';
+import { recipeSlug } from '@shared/utils/slug';
 
 // helper to make sure we always get an array, even if prisma sends back a string or null
 // prisma json columns can be super wierd sometimes depending on the driver version
@@ -63,6 +64,27 @@ function sanitizeBundle(raw: any): RecipeBundle {
   };
 }
 
+// keeps the address bar shareable: once a recipe with tweaks is loaded, the URL
+// becomes its /r/<slug> page. on the home page that's a quiet URL swap; on another
+// recipe's page we move to the new recipe's page instead.
+function syncUrlWithBundle(bundle: RecipeBundle): 'navigating' | 'stayed' {
+  if (bundle.tweaks.length === 0 || bundle.recipe.id === 'unknown-id') return 'stayed';
+  const target = `/r/${recipeSlug(bundle.recipe.title, bundle.recipe.id)}`;
+  const path = window.location.pathname;
+  if (path === target) return 'stayed';
+  if (path.startsWith('/r/')) {
+    window.location.assign(target);
+    return 'navigating';
+  }
+  window.history.replaceState(null, '', target);
+  return 'stayed';
+}
+
+export function shareUrlFor(bundle: RecipeBundle): string | null {
+  if (bundle.tweaks.length === 0 || bundle.recipe.id === 'unknown-id') return null;
+  return `${window.location.origin}/r/${recipeSlug(bundle.recipe.title, bundle.recipe.id)}`;
+}
+
 interface RecipeState {
   bundle: RecipeBundle | null;
   // previously analyzed recipes, newest first. feeds the RecentRecipes strip
@@ -96,6 +118,8 @@ export const useRecipeStore = create<RecipeState>((set, get) => ({
       const rawBundle = await fetchRecipeBundle(url, opts?.refresh);
       // run it through the sanatizer before putting it in state
       const bundle = sanitizeBundle(rawBundle);
+      // a recipe page for a *different* recipe: go to that recipe's own page
+      if (syncUrlWithBundle(bundle) === 'navigating') return;
       set({ bundle, loading: false, selectedTweakId: null });
       // keep the recent recipes strip fresh after a successful scrape
       void get().loadHistory();
