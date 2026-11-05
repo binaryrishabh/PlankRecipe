@@ -5,8 +5,9 @@ import { lookup } from "node:dns/promises";
 import { isIP } from "node:net";
 import { config } from "../utils/config"
 
-// Some hosts get an IPv6 route without real IPv6 connectivity. Bun then tries the
-// database's IPv6 address first and hangs instead of falling back to IPv4.
+// Connecting by hostname is unreliable in Bun: on hosts with a broken IPv6 route it
+// hangs on the IPv6 address, and its happy-eyeballs logic gives each address only
+// 250ms, which is shorter than the ~300ms TCP handshake to Neon from far-away hosts.
 // So we resolve the DB host to IPv4 ourselves and connect to that IP, while keeping
 // the original hostname for TLS (SNI + certificate check), which Neon needs for routing.
 async function buildPoolConfig(connectionString: string | undefined): Promise<PoolConfig> {

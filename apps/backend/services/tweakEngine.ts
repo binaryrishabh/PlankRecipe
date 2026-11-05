@@ -86,21 +86,31 @@ function fixDiffs(rawDiffs: any[], recipe: Recipe): DiffAnnotation[] {
 async function extractTweak(recipe: Recipe, reviewText: string): Promise<any[]> {
   if (!reviewText.trim()) return [];
 
-  const response = await fetch(GEMINI_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${config.GEMINI_API_KEY}`
-    },
-    body: JSON.stringify({
-      model: MODEL,
-      response_format: { type: "json_object" },
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        { role: "user", content: `Recipe:\nIngredients: ${JSON.stringify(recipe.ingredients)}\nSteps: ${JSON.stringify(recipe.steps)}\n\nReview: "${reviewText}"` }
-      ]
-    })
-  });
+  let response: Response;
+  try {
+    response = await fetch(GEMINI_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${config.GEMINI_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        response_format: { type: "json_object" },
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          { role: "user", content: `Recipe:\nIngredients: ${JSON.stringify(recipe.ingredients)}\nSteps: ${JSON.stringify(recipe.steps)}\n\nReview: "${reviewText}"` }
+        ]
+      }),
+      // without a cap one stuck call would hang the whole request
+      signal: AbortSignal.timeout(config.GEMINI_TIMEOUT_MS)
+    });
+  } catch (err: any) {
+    // timeout or network error: skip this review (it falls back to a plain note)
+    // instead of failing the whole recipe
+    console.warn(`[extractor] gemini call failed (${err?.name || "error"}), skipping review`);
+    return [];
+  }
 
   if (!response.ok) {
     // log the real reason so we stop guessing (429 = quota, 400 = bad request etc)

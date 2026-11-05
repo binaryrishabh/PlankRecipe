@@ -3,8 +3,21 @@ import { createRecipeSchema } from "../zod_schemas/recipes";
 import { scrapeRecipe } from "../services/scraper";
 import { prisma } from "../lib/prisma";
 import { toRecipeBundle } from "../utils/mappers";
+import { config } from "../utils/config";
 
 const router = Router();
+
+class ScrapeDeadlineError extends Error {}
+
+// races the scrape against a deadline so the client always gets an answer
+// before Cloudflare's 100s cutoff. the slow scrape is simply abandoned.
+function withDeadline<T>(work: Promise<T>, ms: number): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const deadline = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new ScrapeDeadlineError()), ms);
+  });
+  return Promise.race([work, deadline]).finally(() => clearTimeout(timer));
+}
 
 // POST /api/recipes
 router.post("/", async (req, res) => {
@@ -45,7 +58,7 @@ router.post("/", async (req, res) => {
     }
 
     // scrape the page and build the bundle, hopefully it doesnt crash
-    const bundle = await scrapeRecipe(url);
+    const bundle = await withDeadline(scrapeRecipe(url), config.SCRAPE_DEADLINE_MS);
 
     // persist to db so we can revisit later (assignemnt requirement)
     const savedRecipe = await prisma.recipe.upsert({
@@ -114,6 +127,14 @@ router.post("/", async (req, res) => {
     // the frontend looks for raw.recipe, so sending the flat row made it render "Untitled Recipe"
     res.status(200).json(toRecipeBundle(dbRecipe));
   } catch (error: any) {
+    if (error instanceof ScrapeDeadlineError) {
+      console.warn(`[scraper] gave up on ${url} after ${config.SCRAPE_DEADLINE_MS}ms`);
+      res.status(504).json({
+        success: false,
+        message: "This recipe took too long to analyze. Please try again in a moment."
+      });
+      return;
+    }
     console.error("[scraper] somthing went wrong:", error);
     res.status(500).json({
       success: false,
